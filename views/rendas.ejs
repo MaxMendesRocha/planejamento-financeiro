@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rendas - Planejamento Financeiro</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css?v=<%= Date.now() %>">
 </head>
 <body>
     <%- include('partials/navbar', { userName, active: 'rendas' }) %>
@@ -64,17 +64,17 @@
                 </div>
                 
                 <!-- Área de preview do cálculo -->
-                <div id="previewCalculo" style="display: none; margin-top: 15px; padding: 15px; background: #f0f8ff; border-radius: 8px; border-left: 4px solid #4CAF50;">
-                    <h4 style="margin-top: 0; color: #2c5282;">💰 Detalhamento do Salário</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div id="previewCalculo" style="display: none; margin-top: 15px; padding: 15px; background: #1e3a5f; border-radius: 8px; border-left: 4px solid #10b981;">
+                    <h4 style="margin-top: 0; color: #10b981;">💰 Detalhamento do Salário</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #ffffff;">
                         <div><strong>Salário Bruto:</strong> <span id="prevBruto">R$ 0,00</span></div>
                         <div><strong>INSS:</strong> <span id="prevINSS">R$ 0,00</span></div>
                         <div><strong>Imposto de Renda:</strong> <span id="prevIR">R$ 0,00</span></div>
                         <div><strong>Total de Descontos:</strong> <span id="prevTotal">R$ 0,00</span></div>
                     </div>
-                    <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #4CAF50;">
-                        <strong style="font-size: 1.1em;">Salário Líquido:</strong> 
-                        <span id="prevLiquido" style="font-size: 1.2em; color: #4CAF50; font-weight: bold;">R$ 0,00</span>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #10b981;">
+                        <strong style="font-size: 1.1em; color: #ffffff;">Salário Líquido:</strong> 
+                        <span id="prevLiquido" style="font-size: 1.2em; color: #10b981; font-weight: bold;">R$ 0,00</span>
                     </div>
                 </div>
             </form>
@@ -237,7 +237,7 @@
                                 <td class="valor">
                                     R$ <%= renda.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %>
                                     <% if (renda.tipo_valor === 'bruto' && renda.valor_bruto) { %>
-                                        <br><small style="color: #666;">Bruto: R$ <%= renda.valor_bruto.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></small>
+                                        <br><small style="color: #a8b2d1;">Bruto: R$ <%= renda.valor_bruto.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></small>
                                     <% } %>
                                 </td>
                                 <td>
