@@ -25,6 +25,8 @@ function initDatabase() {
             descricao TEXT NOT NULL,
             valor DECIMAL(10,2) NOT NULL,
             tipo TEXT NOT NULL, -- 'salario', 'beneficio', 'extra'
+            tipo_valor TEXT DEFAULT 'liquido', -- 'liquido', 'bruto'
+            valor_bruto DECIMAL(10,2),
             ativo BOOLEAN DEFAULT 1,
             criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (usuario_id) REFERENCES usuarios(id)

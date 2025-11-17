@@ -19,7 +19,7 @@
             <div class="card-header">
                 <h2>➕ Adicionar Nova Renda</h2>
             </div>
-            <form method="POST" action="/rendas/adicionar">
+            <form method="POST" action="/rendas/adicionar" id="formRenda">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="descricao">Descrição</label>
@@ -33,8 +33,28 @@
                             <option value="extra">Renda Extra</option>
                         </select>
                     </div>
+                </div>
+                
+                <!-- Campos condicionais para salário -->
+                <div id="camposSalario" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipoValor">Tipo de Valor</label>
+                            <select id="tipoValor" name="tipoValor">
+                                <option value="liquido">Líquido (já descontado)</option>
+                                <option value="bruto">Bruto (calcular descontos)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="campoDependentes" style="display: none;">
+                            <label for="dependentes">Dependentes (IR)</label>
+                            <input type="number" id="dependentes" name="dependentes" min="0" value="0" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="valor">Valor (R$)</label>
+                        <label for="valor" id="labelValor">Valor (R$)</label>
                         <input type="number" id="valor" name="valor" step="0.01" placeholder="0,00" required>
                     </div>
                     <div class="form-group">
@@ -42,8 +62,149 @@
                         <button type="submit" class="btn btn-primary">Adicionar</button>
                     </div>
                 </div>
+                
+                <!-- Área de preview do cálculo -->
+                <div id="previewCalculo" style="display: none; margin-top: 15px; padding: 15px; background: #f0f8ff; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                    <h4 style="margin-top: 0; color: #2c5282;">💰 Detalhamento do Salário</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div><strong>Salário Bruto:</strong> <span id="prevBruto">R$ 0,00</span></div>
+                        <div><strong>INSS:</strong> <span id="prevINSS">R$ 0,00</span></div>
+                        <div><strong>Imposto de Renda:</strong> <span id="prevIR">R$ 0,00</span></div>
+                        <div><strong>Total de Descontos:</strong> <span id="prevTotal">R$ 0,00</span></div>
+                    </div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #4CAF50;">
+                        <strong style="font-size: 1.1em;">Salário Líquido:</strong> 
+                        <span id="prevLiquido" style="font-size: 1.2em; color: #4CAF50; font-weight: bold;">R$ 0,00</span>
+                    </div>
+                </div>
             </form>
         </div>
+        
+        <script>
+            const tipoSelect = document.getElementById('tipo');
+            const camposSalario = document.getElementById('camposSalario');
+            const tipoValorSelect = document.getElementById('tipoValor');
+            const campoDependentes = document.getElementById('campoDependentes');
+            const valorInput = document.getElementById('valor');
+            const labelValor = document.getElementById('labelValor');
+            const previewCalculo = document.getElementById('previewCalculo');
+            const dependentesInput = document.getElementById('dependentes');
+            
+            // Mostrar/ocultar campos de salário
+            tipoSelect.addEventListener('change', function() {
+                if (this.value === 'salario') {
+                    camposSalario.style.display = 'block';
+                } else {
+                    camposSalario.style.display = 'none';
+                    previewCalculo.style.display = 'none';
+                    labelValor.textContent = 'Valor (R$)';
+                }
+            });
+            
+            // Mostrar campo de dependentes e atualizar label quando bruto
+            tipoValorSelect.addEventListener('change', function() {
+                if (this.value === 'bruto') {
+                    campoDependentes.style.display = 'block';
+                    labelValor.textContent = 'Valor Bruto (R$)';
+                    calcularPreview();
+                } else {
+                    campoDependentes.style.display = 'none';
+                    previewCalculo.style.display = 'none';
+                    labelValor.textContent = 'Valor Líquido (R$)';
+                }
+            });
+            
+            // Calcular preview em tempo real
+            valorInput.addEventListener('input', calcularPreview);
+            dependentesInput.addEventListener('input', calcularPreview);
+            
+            function calcularPreview() {
+                if (tipoSelect.value !== 'salario' || tipoValorSelect.value !== 'bruto') {
+                    return;
+                }
+                
+                const salarioBruto = parseFloat(valorInput.value) || 0;
+                const dependentes = parseInt(dependentesInput.value) || 0;
+                
+                if (salarioBruto <= 0) {
+                    previewCalculo.style.display = 'none';
+                    return;
+                }
+                
+                // Calcular INSS
+                const inss = calcularINSS(salarioBruto);
+                
+                // Calcular IR
+                const ir = calcularIR(salarioBruto, inss, dependentes);
+                
+                // Calcular líquido
+                const totalDescontos = inss + ir;
+                const salarioLiquido = salarioBruto - totalDescontos;
+                
+                // Atualizar preview
+                document.getElementById('prevBruto').textContent = formatarMoeda(salarioBruto);
+                document.getElementById('prevINSS').textContent = formatarMoeda(inss);
+                document.getElementById('prevIR').textContent = formatarMoeda(ir);
+                document.getElementById('prevTotal').textContent = formatarMoeda(totalDescontos);
+                document.getElementById('prevLiquido').textContent = formatarMoeda(salarioLiquido);
+                
+                previewCalculo.style.display = 'block';
+            }
+            
+            function calcularINSS(salarioBruto) {
+                const faixas = [
+                    { limite: 1412.00, aliquota: 0.075 },
+                    { limite: 2666.68, aliquota: 0.09 },
+                    { limite: 4000.03, aliquota: 0.12 },
+                    { limite: 7786.02, aliquota: 0.14 }
+                ];
+                
+                let desconto = 0;
+                let salarioRestante = salarioBruto;
+                let faixaAnterior = 0;
+                
+                for (let faixa of faixas) {
+                    if (salarioRestante <= 0) break;
+                    
+                    const baseCalculo = Math.min(salarioRestante, faixa.limite - faixaAnterior);
+                    desconto += baseCalculo * faixa.aliquota;
+                    
+                    salarioRestante -= baseCalculo;
+                    faixaAnterior = faixa.limite;
+                }
+                
+                return desconto;
+            }
+            
+            function calcularIR(salarioBruto, descontoINSS, dependentes) {
+                const baseCalculo = salarioBruto - descontoINSS;
+                const deducaoPorDependente = 189.59;
+                const deducaoDependentes = dependentes * deducaoPorDependente;
+                
+                const baseCalculoIR = baseCalculo - deducaoDependentes;
+                
+                const faixas = [
+                    { limite: 2259.20, aliquota: 0, deducao: 0 },
+                    { limite: 2826.65, aliquota: 0.075, deducao: 169.44 },
+                    { limite: 3751.05, aliquota: 0.15, deducao: 381.44 },
+                    { limite: 4664.68, aliquota: 0.225, deducao: 662.77 },
+                    { limite: Infinity, aliquota: 0.275, deducao: 896.00 }
+                ];
+                
+                for (let faixa of faixas) {
+                    if (baseCalculoIR <= faixa.limite) {
+                        const ir = Math.max(0, (baseCalculoIR * faixa.aliquota) - faixa.deducao);
+                        return ir;
+                    }
+                }
+                
+                return 0;
+            }
+            
+            function formatarMoeda(valor) {
+                return 'R$ ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+        </script>
         
         <div class="card">
             <div class="card-header">
@@ -70,10 +231,15 @@
                         <% let totalAtivo = 0; %>
                         <% rendas.forEach(renda => { %>
                             <% if (renda.ativo) totalAtivo += renda.valor; %>
-                            <tr>
+                            <tr id="row-<%= renda.id %>">
                                 <td><%= renda.descricao %></td>
                                 <td><span class="badge badge-<%= renda.tipo %>"><%= renda.tipo %></span></td>
-                                <td class="valor">R$ <%= renda.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></td>
+                                <td class="valor">
+                                    R$ <%= renda.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %>
+                                    <% if (renda.tipo_valor === 'bruto' && renda.valor_bruto) { %>
+                                        <br><small style="color: #666;">Bruto: R$ <%= renda.valor_bruto.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></small>
+                                    <% } %>
+                                </td>
                                 <td>
                                     <% if (renda.ativo) { %>
                                         <span class="badge badge-success">Ativo</span>
@@ -83,8 +249,9 @@
                                 </td>
                                 <td>
                                     <% if (renda.ativo) { %>
+                                        <button type="button" class="btn btn-sm btn-primary" onclick="editarRenda(<%= renda.id %>, '<%= renda.descricao %>', <%= renda.valor %>, '<%= renda.tipo %>', '<%= renda.tipo_valor || 'liquido' %>', <%= renda.valor_bruto || 0 %>)">Editar</button>
                                         <form method="POST" action="/rendas/deletar/<%= renda.id %>" style="display: inline;">
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente desativar esta renda?')">Desativar</button>
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente excluir esta renda?')">Excluir</button>
                                         </form>
                                     <% } %>
                                 </td>
@@ -102,5 +269,195 @@
             <% } %>
         </div>
     </div>
+    
+    <!-- Modal de Edição -->
+    <div id="modalEditar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="card" style="max-width: 600px; margin: 50px auto; max-height: 90vh; overflow-y: auto;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>✏️ Editar Renda</h2>
+                <button onclick="fecharModal()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <form method="POST" id="formEditar">
+                <input type="hidden" id="edit-id" name="id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-descricao">Descrição</label>
+                        <input type="text" id="edit-descricao" name="descricao" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-tipo">Tipo</label>
+                        <select id="edit-tipo" name="tipo" required>
+                            <option value="salario">Salário</option>
+                            <option value="beneficio">Benefício</option>
+                            <option value="extra">Renda Extra</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Campos condicionais para salário -->
+                <div id="edit-camposSalario" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-tipoValor">Tipo de Valor</label>
+                            <select id="edit-tipoValor" name="tipoValor">
+                                <option value="liquido">Líquido (já descontado)</option>
+                                <option value="bruto">Bruto (calcular descontos)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="edit-campoDependentes" style="display: none;">
+                            <label for="edit-dependentes">Dependentes (IR)</label>
+                            <input type="number" id="edit-dependentes" name="dependentes" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-valor" id="edit-labelValor">Valor (R$)</label>
+                        <input type="number" id="edit-valor" name="valor" step="0.01" required>
+                    </div>
+                </div>
+                
+                <!-- Área de preview do cálculo -->
+                <div id="edit-previewCalculo" style="display: none; margin-top: 15px; padding: 15px; background: #f0f8ff; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                    <h4 style="margin-top: 0; color: #2c5282;">💰 Detalhamento do Salário</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div><strong>Salário Bruto:</strong> <span id="edit-prevBruto">R$ 0,00</span></div>
+                        <div><strong>INSS:</strong> <span id="edit-prevINSS">R$ 0,00</span></div>
+                        <div><strong>Imposto de Renda:</strong> <span id="edit-prevIR">R$ 0,00</span></div>
+                        <div><strong>Total de Descontos:</strong> <span id="edit-prevTotal">R$ 0,00</span></div>
+                    </div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #4CAF50;">
+                        <strong style="font-size: 1.1em;">Salário Líquido:</strong> 
+                        <span id="edit-prevLiquido" style="font-size: 1.2em; color: #4CAF50; font-weight: bold;">R$ 0,00</span>
+                    </div>
+                </div>
+                
+                <div class="form-row" style="margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Funções do modal de edição
+        function editarRenda(id, descricao, valor, tipo, tipoValor, valorBruto) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-descricao').value = descricao;
+            document.getElementById('edit-tipo').value = tipo;
+            
+            if (tipo === 'salario') {
+                document.getElementById('edit-camposSalario').style.display = 'block';
+                document.getElementById('edit-tipoValor').value = tipoValor || 'liquido';
+                
+                if (tipoValor === 'bruto' && valorBruto > 0) {
+                    document.getElementById('edit-valor').value = valorBruto;
+                    document.getElementById('edit-labelValor').textContent = 'Valor Bruto (R$)';
+                    document.getElementById('edit-campoDependentes').style.display = 'block';
+                } else {
+                    document.getElementById('edit-valor').value = valor;
+                    document.getElementById('edit-labelValor').textContent = 'Valor Líquido (R$)';
+                }
+            } else {
+                document.getElementById('edit-camposSalario').style.display = 'none';
+                document.getElementById('edit-valor').value = valor;
+            }
+            
+            document.getElementById('formEditar').action = '/rendas/editar/' + id;
+            document.getElementById('modalEditar').style.display = 'flex';
+            
+            // Configurar event listeners para o formulário de edição
+            setupEditFormListeners();
+        }
+        
+        function fecharModal() {
+            document.getElementById('modalEditar').style.display = 'none';
+            document.getElementById('edit-previewCalculo').style.display = 'none';
+        }
+        
+        function setupEditFormListeners() {
+            const editTipoSelect = document.getElementById('edit-tipo');
+            const editCamposSalario = document.getElementById('edit-camposSalario');
+            const editTipoValorSelect = document.getElementById('edit-tipoValor');
+            const editCampoDependentes = document.getElementById('edit-campoDependentes');
+            const editValorInput = document.getElementById('edit-valor');
+            const editLabelValor = document.getElementById('edit-labelValor');
+            const editPreviewCalculo = document.getElementById('edit-previewCalculo');
+            const editDependentesInput = document.getElementById('edit-dependentes');
+            
+            // Remover event listeners antigos
+            editTipoSelect.replaceWith(editTipoSelect.cloneNode(true));
+            editTipoValorSelect.replaceWith(editTipoValorSelect.cloneNode(true));
+            editValorInput.replaceWith(editValorInput.cloneNode(true));
+            editDependentesInput.replaceWith(editDependentesInput.cloneNode(true));
+            
+            // Reobter referências
+            const newEditTipoSelect = document.getElementById('edit-tipo');
+            const newEditTipoValorSelect = document.getElementById('edit-tipoValor');
+            const newEditValorInput = document.getElementById('edit-valor');
+            const newEditDependentesInput = document.getElementById('edit-dependentes');
+            
+            newEditTipoSelect.addEventListener('change', function() {
+                if (this.value === 'salario') {
+                    editCamposSalario.style.display = 'block';
+                } else {
+                    editCamposSalario.style.display = 'none';
+                    editPreviewCalculo.style.display = 'none';
+                    editLabelValor.textContent = 'Valor (R$)';
+                }
+            });
+            
+            newEditTipoValorSelect.addEventListener('change', function() {
+                if (this.value === 'bruto') {
+                    editCampoDependentes.style.display = 'block';
+                    editLabelValor.textContent = 'Valor Bruto (R$)';
+                    calcularEditPreview();
+                } else {
+                    editCampoDependentes.style.display = 'none';
+                    editPreviewCalculo.style.display = 'none';
+                    editLabelValor.textContent = 'Valor Líquido (R$)';
+                }
+            });
+            
+            newEditValorInput.addEventListener('input', calcularEditPreview);
+            newEditDependentesInput.addEventListener('input', calcularEditPreview);
+        }
+        
+        function calcularEditPreview() {
+            const editTipoSelect = document.getElementById('edit-tipo');
+            const editTipoValorSelect = document.getElementById('edit-tipoValor');
+            const editValorInput = document.getElementById('edit-valor');
+            const editDependentesInput = document.getElementById('edit-dependentes');
+            const editPreviewCalculo = document.getElementById('edit-previewCalculo');
+            
+            if (editTipoSelect.value !== 'salario' || editTipoValorSelect.value !== 'bruto') {
+                return;
+            }
+            
+            const salarioBruto = parseFloat(editValorInput.value) || 0;
+            const dependentes = parseInt(editDependentesInput.value) || 0;
+            
+            if (salarioBruto <= 0) {
+                editPreviewCalculo.style.display = 'none';
+                return;
+            }
+            
+            const inss = calcularINSS(salarioBruto);
+            const ir = calcularIR(salarioBruto, inss, dependentes);
+            const totalDescontos = inss + ir;
+            const salarioLiquido = salarioBruto - totalDescontos;
+            
+            document.getElementById('edit-prevBruto').textContent = formatarMoeda(salarioBruto);
+            document.getElementById('edit-prevINSS').textContent = formatarMoeda(inss);
+            document.getElementById('edit-prevIR').textContent = formatarMoeda(ir);
+            document.getElementById('edit-prevTotal').textContent = formatarMoeda(totalDescontos);
+            document.getElementById('edit-prevLiquido').textContent = formatarMoeda(salarioLiquido);
+            
+            editPreviewCalculo.style.display = 'block';
+        }
+    </script>
 </body>
 </html>

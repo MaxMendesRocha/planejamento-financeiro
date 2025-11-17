@@ -4,6 +4,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
 const db = require('./database/db');
+const { calcularSalarioLiquido } = require('./utils/calculoCLT');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -174,18 +175,64 @@ app.get('/rendas', requireAuth, (req, res) => {
 });
 
 app.post('/rendas/adicionar', requireAuth, (req, res) => {
-    const { descricao, valor, tipo } = req.body;
-    db.prepare('INSERT INTO rendas (usuario_id, descricao, valor, tipo) VALUES (?, ?, ?, ?)').run(
+    const { descricao, valor, tipo, tipoValor, dependentes } = req.body;
+    
+    let valorFinal = parseFloat(valor);
+    let valorBruto = null;
+    let tipoValorFinal = 'liquido';
+    
+    // Se for salário e tipo bruto, calcular o líquido
+    if (tipo === 'salario' && tipoValor === 'bruto') {
+        const numDependentes = parseInt(dependentes) || 0;
+        const calculo = calcularSalarioLiquido(valorFinal, numDependentes, 0);
+        
+        valorBruto = valorFinal;
+        valorFinal = calculo.salarioLiquido;
+        tipoValorFinal = 'bruto';
+    }
+    
+    db.prepare('INSERT INTO rendas (usuario_id, descricao, valor, tipo, tipo_valor, valor_bruto) VALUES (?, ?, ?, ?, ?, ?)').run(
         req.session.userId,
         descricao,
-        parseFloat(valor),
-        tipo
+        valorFinal,
+        tipo,
+        tipoValorFinal,
+        valorBruto
     );
     res.redirect('/rendas');
 });
 
 app.post('/rendas/deletar/:id', requireAuth, (req, res) => {
-    db.prepare('UPDATE rendas SET ativo = 0 WHERE id = ? AND usuario_id = ?').run(req.params.id, req.session.userId);
+    db.prepare('DELETE FROM rendas WHERE id = ? AND usuario_id = ?').run(req.params.id, req.session.userId);
+    res.redirect('/rendas');
+});
+
+app.post('/rendas/editar/:id', requireAuth, (req, res) => {
+    const { descricao, valor, tipo, tipoValor, dependentes } = req.body;
+    
+    let valorFinal = parseFloat(valor);
+    let valorBruto = null;
+    let tipoValorFinal = 'liquido';
+    
+    // Se for salário e tipo bruto, calcular o líquido
+    if (tipo === 'salario' && tipoValor === 'bruto') {
+        const numDependentes = parseInt(dependentes) || 0;
+        const calculo = calcularSalarioLiquido(valorFinal, numDependentes, 0);
+        
+        valorBruto = valorFinal;
+        valorFinal = calculo.salarioLiquido;
+        tipoValorFinal = 'bruto';
+    }
+    
+    db.prepare('UPDATE rendas SET descricao = ?, valor = ?, tipo = ?, tipo_valor = ?, valor_bruto = ? WHERE id = ? AND usuario_id = ?').run(
+        descricao,
+        valorFinal,
+        tipo,
+        tipoValorFinal,
+        valorBruto,
+        req.params.id,
+        req.session.userId
+    );
     res.redirect('/rendas');
 });
 
