@@ -93,15 +93,29 @@ app.get('/dashboard', requireAuth, (req, res) => {
     
     // Buscar rendas ativas
     const rendas = db.prepare('SELECT * FROM rendas WHERE usuario_id = ? AND ativo = 1').all(userId);
+    
+    // Total de TODAS as rendas (incluindo benefícios)
     const totalRendas = parseFloat(rendas.reduce((sum, r) => sum + r.valor, 0).toFixed(2));
+    
+    // Total das rendas que entram na distribuição 50/30/20 (excluindo benefícios)
+    const rendasParaDistribuicao = rendas.filter(r => r.tipo !== 'beneficio');
+    const totalRendasDistribuicao = parseFloat(rendasParaDistribuicao.reduce((sum, r) => sum + r.valor, 0).toFixed(2));
     
     // Buscar configurações
     const config = db.prepare('SELECT * FROM configuracoes WHERE usuario_id = ?').get(userId);
     
-    // Calcular distribuição (arredondar para 2 casas decimais)
-    const necessidades = parseFloat((totalRendas * (config.percentual_necessidades / 100)).toFixed(2));
-    const desejos = parseFloat((totalRendas * (config.percentual_desejos / 100)).toFixed(2));
-    const poupanca = parseFloat((totalRendas * (config.percentual_poupanca / 100)).toFixed(2));
+    // Calcular distribuição baseada APENAS em salários e rendas extras (sem benefícios)
+    const necessidades = parseFloat((totalRendasDistribuicao * (config.percentual_necessidades / 100)).toFixed(2));
+    const desejos = parseFloat((totalRendasDistribuicao * (config.percentual_desejos / 100)).toFixed(2));
+    const poupanca = parseFloat((totalRendasDistribuicao * (config.percentual_poupanca / 100)).toFixed(2));
+    
+    // Debug: console.log para verificar
+    console.log('💰 Cálculo de Rendas:');
+    console.log('Total de rendas (com benefícios):', totalRendas);
+    console.log('Total para distribuição (sem benefícios):', totalRendasDistribuicao);
+    console.log('Necessidades:', necessidades);
+    console.log('Desejos:', desejos);
+    console.log('Poupança:', poupanca);
     
     // Buscar despesas do mês atual
     const mesAtual = new Date().toISOString().slice(0, 7);
