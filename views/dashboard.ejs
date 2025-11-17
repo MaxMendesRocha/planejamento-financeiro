@@ -70,11 +70,12 @@
                         <% const faltaGuardar = Math.max(0, (metaReserva.valor_meta || 0) - (metaReserva.valor_atual || 0)); %>
                         <p><strong>Falta Guardar:</strong> R$ <%= faltaGuardar.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
                     </div>
-                    <div class="progress-bar">
-                        <% const progressoMeta = metaReserva.valor_meta > 0 ? ((metaReserva.valor_atual || 0) / metaReserva.valor_meta * 100) : 0; %>
-                        <div class="progress-fill" style="width: <%= Math.min(progressoMeta, 100).toFixed(1) %>%;">
-                            <%= Math.min(progressoMeta, 100).toFixed(1) %>%
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <% const progressoMeta = metaReserva.valor_meta > 0 ? ((metaReserva.valor_atual || 0) / metaReserva.valor_meta * 100) : 0; %>
+                            <div class="progress-fill" style="width: <%= Math.min(progressoMeta, 100).toFixed(1) %>%;"></div>
                         </div>
+                        <div class="progress-percentage"><%= Math.min(progressoMeta, 100).toFixed(1) %>%</div>
                     </div>
                     <% if (progressoMeta >= 100) { %>
                         <div class="alert alert-success" style="margin-top: 1rem;">
@@ -98,33 +99,67 @@
                 <div class="card-header">
                     <h2>📈 Orçamento vs Realizado</h2>
                 </div>
-                <div class="comparison-bars">
-                    <div class="bar-group">
+                <div class="comparison-bars-vertical">
+                    <% 
+                        // Encontrar o maior valor entre TODOS os orçamentos e realizados
+                        const maxValor = Math.max(
+                            necessidades, desejos, poupanca,
+                            despesas.necessidades, despesas.desejos, despesas.poupanca
+                        );
+                    %>
+                    <!-- Necessidades -->
+                    <div class="bar-group-vertical">
                         <label>Necessidades</label>
-                        <div class="bar-container">
-                            <div class="bar budget">R$ <%= necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
-                            <div class="bar actual necessidades-bg" style="width: <%= Math.min((despesas.necessidades / necessidades * 100), 100) %>%;">
-                                R$ <%= despesas.necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                        <div class="bars-container">
+                            <div class="bar-wrapper">
+                                <div class="bar-vertical-dynamic necessidades-bg" style="height: <%= maxValor > 0 ? ((necessidades / maxValor) * 100) : 0 %>%;">
+                                    <span class="bar-value">R$ <%= necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
+                                </div>
+                                <div class="bar-label">Orçamento</div>
+                            </div>
+                            <div class="bar-wrapper">
+                                <div class="bar-vertical-dynamic necessidades-bg-light" style="height: <%= maxValor > 0 ? ((despesas.necessidades / maxValor) * 100) : 0 %>%;">
+                                    <span class="bar-value">R$ <%= despesas.necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
+                                </div>
+                                <div class="bar-label">Realizado</div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="bar-group">
+                    <!-- Desejos -->
+                    <div class="bar-group-vertical">
                         <label>Desejos</label>
-                        <div class="bar-container">
-                            <div class="bar budget">R$ <%= desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
-                            <div class="bar actual desejos-bg" style="width: <%= Math.min((despesas.desejos / desejos * 100), 100) %>%;">
-                                R$ <%= despesas.desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                        <div class="bars-container">
+                            <div class="bar-wrapper">
+                                <div class="bar-vertical-dynamic desejos-bg" style="height: <%= maxValor > 0 ? ((desejos / maxValor) * 100) : 0 %>%;">
+                                    <span class="bar-value">R$ <%= desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
+                                </div>
+                                <div class="bar-label">Orçamento</div>
+                            </div>
+                            <div class="bar-wrapper">
+                                <div class="bar-vertical-dynamic desejos-bg-light" style="height: <%= maxValor > 0 ? ((despesas.desejos / maxValor) * 100) : 0 %>%;">
+                                    <span class="bar-value">R$ <%= despesas.desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
+                                </div>
+                                <div class="bar-label">Realizado</div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="bar-group">
+                    <!-- Poupança -->
+                    <div class="bar-group-vertical">
                         <label>Poupança</label>
-                        <div class="bar-container">
-                            <div class="bar budget">R$ <%= poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
-                            <div class="bar actual poupanca-bg" style="width: <%= Math.min((despesas.poupanca / poupanca * 100), 100) %>%;">
-                                R$ <%= despesas.poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                        <div class="bars-container">
+                            <div class="bar-wrapper">
+                                <div class="bar-vertical-dynamic poupanca-bg" style="height: <%= maxValor > 0 ? ((poupanca / maxValor) * 100) : 0 %>%;">
+                                    <span class="bar-value">R$ <%= poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
+                                </div>
+                                <div class="bar-label">Orçamento</div>
+                            </div>
+                            <div class="bar-wrapper">
+                                <div class="bar-vertical-dynamic poupanca-bg-light" style="height: <%= maxValor > 0 ? ((despesas.poupanca / maxValor) * 100) : 0 %>%;">
+                                    <span class="bar-value">R$ <%= despesas.poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
+                                </div>
+                                <div class="bar-label">Realizado</div>
                             </div>
                         </div>
                     </div>

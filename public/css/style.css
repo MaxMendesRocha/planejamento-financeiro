@@ -546,26 +546,37 @@ body {
 }
 
 /* Progress Bar */
+.progress-bar-container {
+    position: relative;
+    margin: 1rem 0;
+}
+
 .progress-bar {
     width: 100%;
     height: 30px;
     background: var(--muted);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    margin: 1rem 0;
 }
 
 .progress-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--primary) 0%, #667eea 100%);
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 10px;
-    color: white;
-    font-weight: 600;
     transition: width 1s ease;
     border-radius: var(--radius-lg);
+}
+
+.progress-percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 1rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 10;
 }
 
 /* Alerts */
@@ -838,6 +849,106 @@ body {
 .poupanca-bg {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
     box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Barras Verticais */
+.comparison-bars-vertical {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding: 2rem 1rem 1rem 1rem;
+    min-height: 350px;
+}
+
+.bar-group-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.bar-group-vertical label {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #ffffff !important;
+    font-size: 0.95rem;
+}
+
+.bars-container {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    height: 250px;
+    width: 100%;
+    justify-content: center;
+}
+
+.bar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60px;
+}
+
+.bar-vertical-fixed {
+    width: 100%;
+    height: 60px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 5px;
+    position: relative;
+}
+
+.bar-vertical-dynamic {
+    width: 100%;
+    min-height: 40px;
+    max-height: 250px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 5px;
+    transition: height 0.5s ease;
+    position: relative;
+}
+
+.bar-vertical-fixed .bar-value,
+.bar-vertical-dynamic .bar-value {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    color: white !important;
+    font-weight: 600;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    transform: rotate(180deg);
+}
+
+.bar-label {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: #a8b2d1 !important;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Cores mais claras para "Realizado" */
+.necessidades-bg-light {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.7) 0%, rgba(220, 38, 38, 0.7) 100%) !important;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+.desejos-bg-light {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.7) 0%, rgba(217, 119, 6, 0.7) 100%) !important;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.poupanca-bg-light {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.7) 0%, rgba(5, 150, 105, 0.7) 100%) !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
 }
 
 /* Renda Item */
