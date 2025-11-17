@@ -1,0 +1,16 @@
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/dashboard" class="nav-brand">💰 Planejamento Financeiro</a>
+        <ul class="nav-menu">
+            <li><a href="/dashboard" class="<%= active === 'dashboard' ? 'active' : '' %>">Dashboard</a></li>
+            <li><a href="/rendas" class="<%= active === 'rendas' ? 'active' : '' %>">Rendas</a></li>
+            <li><a href="/despesas" class="<%= active === 'despesas' ? 'active' : '' %>">Despesas</a></li>
+            <li><a href="/metas" class="<%= active === 'metas' ? 'active' : '' %>">Metas</a></li>
+            <li><a href="/configuracoes" class="<%= active === 'configuracoes' ? 'active' : '' %>">Configurações</a></li>
+        </ul>
+        <div class="nav-user">
+            <span>Olá, <%= userName %>!</span>
+            <a href="/logout" class="btn-logout">Sair</a>
+        </div>
+    </div>
+</nav>

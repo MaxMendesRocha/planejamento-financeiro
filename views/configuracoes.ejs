@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Planejamento Financeiro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/navbar', { userName, active: 'configuracoes' }) %>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>⚙️ Configurações</h1>
+            <p class="subtitle">Personalize seu planejamento financeiro</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>📊 Percentuais de Distribuição</h2>
+                <p>Ajuste como sua renda deve ser distribuída (total deve somar 100%)</p>
+            </div>
+            
+            <form method="POST" action="/configuracoes/atualizar">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="percentual_necessidades">🏠 Necessidades (%)</label>
+                        <input type="number" id="percentual_necessidades" name="percentual_necessidades" 
+                               min="0" max="100" value="<%= config.percentual_necessidades %>" required>
+                        <small>Contas fixas, alimentação, saúde, transporte</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="percentual_desejos">🎨 Desejos (%)</label>
+                        <input type="number" id="percentual_desejos" name="percentual_desejos" 
+                               min="0" max="100" value="<%= config.percentual_desejos %>" required>
+                        <small>Lazer, restaurantes, hobbies, compras</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="percentual_poupanca">💎 Poupança (%)</label>
+                        <input type="number" id="percentual_poupanca" name="percentual_poupanca" 
+                               min="0" max="100" value="<%= config.percentual_poupanca %>" required>
+                        <small>Investimentos, reserva de emergência</small>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>💡 Dica:</strong> O método 50/30/20 é recomendado: 50% necessidades, 30% desejos, 20% poupança.
+                    Mas você pode ajustar conforme sua realidade!
+                </div>
+                
+                <div id="totalPercentual" class="total-percentual">
+                    Total: <span id="total">100</span>%
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg">Salvar Configurações</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>📝 Sobre o Método 50/30/20</h2>
+            </div>
+            <div class="info-section">
+                <div class="info-item">
+                    <h3>🏠 50% - Necessidades</h3>
+                    <p>São os gastos essenciais para sua sobrevivência e manutenção básica:</p>
+                    <ul>
+                        <li>Moradia (aluguel, condomínio, IPTU)</li>
+                        <li>Alimentação básica</li>
+                        <li>Transporte</li>
+                        <li>Saúde e medicamentos</li>
+                        <li>Contas de água, luz, gás</li>
+                        <li>Educação essencial</li>
+                    </ul>
+                </div>
+                
+                <div class="info-item">
+                    <h3>🎨 30% - Desejos</h3>
+                    <p>Gastos que melhoram sua qualidade de vida, mas não são essenciais:</p>
+                    <ul>
+                        <li>Restaurantes e delivery</li>
+                        <li>Lazer e entretenimento</li>
+                        <li>Assinaturas (streaming, academia)</li>
+                        <li>Viagens</li>
+                        <li>Hobbies</li>
+                        <li>Roupas e acessórios</li>
+                    </ul>
+                </div>
+                
+                <div class="info-item">
+                    <h3>💎 20% - Poupança e Investimentos</h3>
+                    <p>Dinheiro para garantir seu futuro financeiro:</p>
+                    <ul>
+                        <li>Reserva de emergência (prioridade)</li>
+                        <li>Investimentos de médio/longo prazo</li>
+                        <li>Previdência privada</li>
+                        <li>Objetivos específicos (casa, carro, viagem)</li>
+                        <li>Aposentadoria</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const inputs = document.querySelectorAll('input[type="number"]');
+        const totalSpan = document.getElementById('total');
+        const totalDiv = document.getElementById('totalPercentual');
+        
+        function calcularTotal() {
+            let total = 0;
+            inputs.forEach(input => {
+                total += parseInt(input.value) || 0;
+            });
+            totalSpan.textContent = total;
+            
+            if (total === 100) {
+                totalDiv.className = 'total-percentual valid';
+            } else {
+                totalDiv.className = 'total-percentual invalid';
+            }
+            
+            return total;
+        }
+        
+        inputs.forEach(input => {
+            input.addEventListener('input', calcularTotal);
+        });
+        
+        document.querySelector('form').addEventListener('submit', (e) => {
+            if (calcularTotal() !== 100) {
+                e.preventDefault();
+                alert('O total dos percentuais deve ser 100%!');
+            }
+        });
+        
+        calcularTotal();
+    </script>
+</body>
+</html>

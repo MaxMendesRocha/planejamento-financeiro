@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despesas - Planejamento Financeiro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/navbar', { userName, active: 'despesas' }) %>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>📊 Gerenciar Despesas</h1>
+            <p class="subtitle">Registre e acompanhe seus gastos</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>➕ Adicionar Nova Despesa</h2>
+            </div>
+            <form method="POST" action="/despesas/adicionar">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="descricao">Descrição</label>
+                        <input type="text" id="descricao" name="descricao" placeholder="Ex: Conta de luz" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria">Categoria</label>
+                        <select id="categoria" name="categoria" required>
+                            <option value="necessidades">🏠 Necessidades</option>
+                            <option value="desejos">🎨 Desejos</option>
+                            <option value="poupanca">💎 Poupança</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="subcategoria">Subcategoria</label>
+                        <input type="text" id="subcategoria" name="subcategoria" placeholder="Ex: Moradia, Alimentação">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="valor">Valor (R$)</label>
+                        <input type="number" id="valor" name="valor" step="0.01" placeholder="0,00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="data">Data</label>
+                        <input type="date" id="data" name="data" value="<%= new Date().toISOString().split('T')[0] %>" required>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end;">
+                        <label for="recorrente" style="display: flex; align-items: center; margin-bottom: 0; cursor: pointer;">
+                            <input type="checkbox" id="recorrente" name="recorrente" value="1" style="width: auto; margin-right: 8px;">
+                            <span>Despesa recorrente</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary">Adicionar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>📋 Despesas de <%= new Date(mesAtual + '-01').toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'}) %></h2>
+            </div>
+            
+            <% if (despesas.length === 0) { %>
+                <div class="empty-state">
+                    <p>Nenhuma despesa registrada neste mês.</p>
+                    <p>Comece a adicionar suas despesas acima!</p>
+                </div>
+            <% } else { %>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Categoria</th>
+                            <th>Subcategoria</th>
+                            <th>Valor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% let totalNecessidades = 0, totalDesejos = 0, totalPoupanca = 0; %>
+                        <% despesas.forEach(despesa => { %>
+                            <% 
+                                if (despesa.categoria === 'necessidades') totalNecessidades += despesa.valor;
+                                else if (despesa.categoria === 'desejos') totalDesejos += despesa.valor;
+                                else if (despesa.categoria === 'poupanca') totalPoupanca += despesa.valor;
+                            %>
+                            <tr>
+                                <td><%= new Date(despesa.data).toLocaleDateString('pt-BR') %></td>
+                                <td>
+                                    <%= despesa.descricao %>
+                                    <% if (despesa.recorrente) { %>
+                                        <span class="badge badge-info">Recorrente</span>
+                                    <% } %>
+                                </td>
+                                <td><span class="badge badge-<%= despesa.categoria %>"><%= despesa.categoria %></span></td>
+                                <td><%= despesa.subcategoria || '-' %></td>
+                                <td class="valor">R$ <%= despesa.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></td>
+                                <td>
+                                    <form method="POST" action="/despesas/deletar/<%= despesa.id %>" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente excluir esta despesa?')">Excluir</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="4"><strong>Total por Categoria</strong></td>
+                            <td colspan="2">
+                                <div>🏠 Necessidades: <strong>R$ <%= totalNecessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
+                                <div>🎨 Desejos: <strong>R$ <%= totalDesejos.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
+                                <div>💎 Poupança: <strong>R$ <%= totalPoupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
+                            </td>
+                        </tr>
+                        <tr class="total-row">
+                            <td colspan="4"><strong>Total Geral</strong></td>
+                            <td colspan="2" class="valor"><strong>R$ <%= (totalNecessidades + totalDesejos + totalPoupanca).toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

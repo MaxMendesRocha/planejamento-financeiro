@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Planejamento Financeiro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>💰 Planejamento Financeiro</h1>
+                <p>Entre na sua conta</p>
+            </div>
+            
+            <% if (erro) { %>
+                <div class="alert alert-danger"><%= erro %></div>
+            <% } %>
+            
+            <form method="POST" action="/login" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Não tem conta? <a href="/registro">Criar conta</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rendas - Planejamento Financeiro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/navbar', { userName, active: 'rendas' }) %>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>💵 Gerenciar Rendas</h1>
+            <p class="subtitle">Configure suas fontes de renda mensal</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>➕ Adicionar Nova Renda</h2>
+            </div>
+            <form method="POST" action="/rendas/adicionar">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="descricao">Descrição</label>
+                        <input type="text" id="descricao" name="descricao" placeholder="Ex: Salário Principal" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo</label>
+                        <select id="tipo" name="tipo" required>
+                            <option value="salario">Salário</option>
+                            <option value="beneficio">Benefício</option>
+                            <option value="extra">Renda Extra</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="valor">Valor (R$)</label>
+                        <input type="number" id="valor" name="valor" step="0.01" placeholder="0,00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary">Adicionar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>📋 Minhas Rendas</h2>
+            </div>
+            
+            <% if (rendas.length === 0) { %>
+                <div class="empty-state">
+                    <p>Nenhuma renda cadastrada ainda.</p>
+                    <p>Adicione suas fontes de renda acima para começar!</p>
+                </div>
+            <% } else { %>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Tipo</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% let totalAtivo = 0; %>
+                        <% rendas.forEach(renda => { %>
+                            <% if (renda.ativo) totalAtivo += renda.valor; %>
+                            <tr>
+                                <td><%= renda.descricao %></td>
+                                <td><span class="badge badge-<%= renda.tipo %>"><%= renda.tipo %></span></td>
+                                <td class="valor">R$ <%= renda.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></td>
+                                <td>
+                                    <% if (renda.ativo) { %>
+                                        <span class="badge badge-success">Ativo</span>
+                                    <% } else { %>
+                                        <span class="badge badge-inactive">Inativo</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (renda.ativo) { %>
+                                        <form method="POST" action="/rendas/deletar/<%= renda.id %>" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente desativar esta renda?')">Desativar</button>
+                                        </form>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="2"><strong>Total de Rendas Ativas</strong></td>
+                            <td class="valor"><strong>R$ <%= totalAtivo.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

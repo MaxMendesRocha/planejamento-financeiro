@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metas - Planejamento Financeiro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/navbar', { userName, active: 'metas' }) %>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>🎯 Minhas Metas Financeiras</h1>
+            <p class="subtitle">Acompanhe o progresso dos seus objetivos</p>
+        </div>
+        
+        <% metas.forEach(meta => { %>
+            <% if (meta.ativo) { %>
+                <div class="card meta-card">
+                    <div class="meta-header">
+                        <div>
+                            <h2><%= meta.descricao %></h2>
+                            <span class="badge badge-<%= meta.tipo %>"><%= meta.tipo.replace('_', ' ') %></span>
+                        </div>
+                        <% if (meta.prazo_meses) { %>
+                            <p class="meta-prazo">⏱️ Prazo: <%= meta.prazo_meses %> meses</p>
+                        <% } %>
+                    </div>
+                    
+                    <div class="meta-values">
+                        <div class="meta-value-item">
+                            <p class="label">Meta</p>
+                            <p class="value">R$ <%= meta.valor_meta.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
+                        </div>
+                        <div class="meta-value-item">
+                            <p class="label">Guardado</p>
+                            <p class="value atual">R$ <%= meta.valor_atual.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
+                        </div>
+                        <div class="meta-value-item">
+                            <p class="label">Falta</p>
+                            <p class="value falta">R$ <%= (meta.valor_meta - meta.valor_atual).toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: <%= Math.min((meta.valor_atual / meta.valor_meta * 100), 100).toFixed(1) %>%;">
+                            <%= Math.min((meta.valor_atual / meta.valor_atual * 100), 100).toFixed(1) %>%
+                        </div>
+                    </div>
+                    
+                    <div class="meta-actions">
+                        <form class="update-form" data-meta-id="<%= meta.id %>">
+                            <label>Atualizar valor guardado:</label>
+                            <input type="number" step="0.01" value="<%= meta.valor_atual %>" class="valor-input" placeholder="0,00">
+                            <button type="submit" class="btn btn-primary">Atualizar</button>
+                        </form>
+                    </div>
+                </div>
+            <% } %>
+        <% }); %>
+        
+        <% if (metas.filter(m => m.ativo).length === 0) { %>
+            <div class="card">
+                <div class="empty-state">
+                    <p>Nenhuma meta ativa no momento.</p>
+                    <p>Suas metas serão criadas automaticamente conforme você configura seu planejamento.</p>
+                </div>
+            </div>
+        <% } %>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.update-form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const metaId = form.dataset.metaId;
+                const valorAtual = form.querySelector('.valor-input').value;
+                
+                const response = await fetch(`/metas/atualizar-valor/${metaId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ valor_atual: parseFloat(valorAtual) })
+                });
+                
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Erro ao atualizar meta');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

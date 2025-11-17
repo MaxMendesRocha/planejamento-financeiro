@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração Inicial - Planejamento Financeiro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/navbar', { userName, active: 'configuracao' }) %>
+    
+    <div class="container">
+        <div class="welcome-section">
+            <h1>🎉 Bem-vindo, <%= userName %>!</h1>
+            <p class="subtitle">Vamos configurar suas fontes de renda para começar</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>💵 Configure suas Rendas</h2>
+                <p>Adicione todas as suas fontes de renda mensal</p>
+            </div>
+            
+            <form method="POST" action="/configuracao/inicial" id="formRendas">
+                <div id="rendasContainer">
+                    <div class="renda-item">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Descrição</label>
+                                <input type="text" name="rendas[0][descricao]" placeholder="Ex: Salário, Freelance, Benefício" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <select name="rendas[0][tipo]" required>
+                                    <option value="salario">Salário</option>
+                                    <option value="beneficio">Benefício</option>
+                                    <option value="extra">Renda Extra</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Valor (R$)</label>
+                                <input type="number" name="rendas[0][valor]" step="0.01" placeholder="0,00" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-secondary" onclick="adicionarRenda()">+ Adicionar Outra Renda</button>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg">Continuar para o Dashboard →</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let rendaCount = 1;
+        
+        function adicionarRenda() {
+            const container = document.getElementById('rendasContainer');
+            const novaRenda = `
+                <div class="renda-item">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <input type="text" name="rendas[${rendaCount}][descricao]" placeholder="Ex: Salário, Freelance, Benefício" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select name="rendas[${rendaCount}][tipo]" required>
+                                <option value="salario">Salário</option>
+                                <option value="beneficio">Benefício</option>
+                                <option value="extra">Renda Extra</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor (R$)</label>
+                            <input type="number" name="rendas[${rendaCount}][valor]" step="0.01" placeholder="0,00" required>
+                        </div>
+                        <button type="button" class="btn-remove" onclick="this.parentElement.parentElement.remove()">×</button>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', novaRenda);
+            rendaCount++;
+        }
+    </script>
+</body>
+</html>

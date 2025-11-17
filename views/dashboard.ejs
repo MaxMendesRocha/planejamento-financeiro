@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Planejamento Financeiro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/navbar', { userName, active: 'dashboard' }) %>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>📊 Dashboard Financeiro</h1>
+            <p class="subtitle">Visão geral do seu planejamento</p>
+        </div>
+        
+        <!-- Cards de Resumo -->
+        <div class="dashboard-cards">
+            <div class="stat-card">
+                <div class="stat-icon">💵</div>
+                <div class="stat-content">
+                    <p class="stat-label">Renda Total</p>
+                    <h2 class="stat-value">R$ <%= totalRendas.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></h2>
+                </div>
+            </div>
+            
+            <div class="stat-card necessidades">
+                <div class="stat-icon">🏠</div>
+                <div class="stat-content">
+                    <p class="stat-label">Necessidades (<%= config.percentual_necessidades %>%)</p>
+                    <h2 class="stat-value">R$ <%= necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></h2>
+                    <p class="stat-small">Gasto: R$ <%= despesas.necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
+                </div>
+            </div>
+            
+            <div class="stat-card desejos">
+                <div class="stat-icon">🎨</div>
+                <div class="stat-content">
+                    <p class="stat-label">Desejos (<%= config.percentual_desejos %>%)</p>
+                    <h2 class="stat-value">R$ <%= desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></h2>
+                    <p class="stat-small">Gasto: R$ <%= despesas.desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
+                </div>
+            </div>
+            
+            <div class="stat-card poupanca">
+                <div class="stat-icon">💎</div>
+                <div class="stat-content">
+                    <p class="stat-label">Poupança (<%= config.percentual_poupanca %>%)</p>
+                    <h2 class="stat-value">R$ <%= poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></h2>
+                    <p class="stat-small">Guardado: R$ <%= despesas.poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progresso das Metas -->
+        <% if (metaReserva) { %>
+        <div class="card">
+            <div class="card-header">
+                <h2>🎯 Reserva de Emergência</h2>
+            </div>
+            <div class="meta-progress">
+                <div class="meta-info">
+                    <p><strong>Meta:</strong> R$ <%= metaReserva.valor_meta.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
+                    <p><strong>Guardado:</strong> R$ <%= metaReserva.valor_atual.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: <%= (metaReserva.valor_atual / metaReserva.valor_meta * 100).toFixed(1) %>%;">
+                        <%= (metaReserva.valor_atual / metaReserva.valor_meta * 100).toFixed(1) %>%
+                    </div>
+                </div>
+                <a href="/metas" class="btn btn-secondary">Atualizar Valor</a>
+            </div>
+        </div>
+        <% } %>
+        
+        <!-- Gráficos de Despesas -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2>📈 Orçamento vs Realizado</h2>
+                </div>
+                <div class="comparison-bars">
+                    <div class="bar-group">
+                        <label>Necessidades</label>
+                        <div class="bar-container">
+                            <div class="bar budget" style="width: 100%;">R$ <%= necessidades.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %></div>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar actual necessidades-bg" style="width: <%= (despesas.necessidades / necessidades * 100) %>%;">
+                                R$ <%= despesas.necessidades.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bar-group">
+                        <label>Desejos</label>
+                        <div class="bar-container">
+                            <div class="bar budget" style="width: 100%;">R$ <%= desejos.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %></div>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar actual desejos-bg" style="width: <%= (despesas.desejos / desejos * 100) %>%;">
+                                R$ <%= despesas.desejos.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bar-group">
+                        <label>Poupança</label>
+                        <div class="bar-container">
+                            <div class="bar budget" style="width: 100%;">R$ <%= poupanca.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %></div>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar actual poupanca-bg" style="width: <%= (despesas.poupanca / poupanca * 100) %>%;">
+                                R$ <%= despesas.poupanca.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>💡 Ações Rápidas</h2>
+                </div>
+                <div class="quick-actions">
+                    <a href="/despesas" class="action-button">
+                        <span class="action-icon">➕</span>
+                        <span>Adicionar Despesa</span>
+                    </a>
+                    <a href="/rendas" class="action-button">
+                        <span class="action-icon">💰</span>
+                        <span>Gerenciar Rendas</span>
+                    </a>
+                    <a href="/metas" class="action-button">
+                        <span class="action-icon">🎯</span>
+                        <span>Ver Metas</span>
+                    </a>
+                    <a href="/configuracoes" class="action-button">
+                        <span class="action-icon">⚙️</span>
+                        <span>Configurações</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
