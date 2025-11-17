@@ -93,15 +93,15 @@ app.get('/dashboard', requireAuth, (req, res) => {
     
     // Buscar rendas ativas
     const rendas = db.prepare('SELECT * FROM rendas WHERE usuario_id = ? AND ativo = 1').all(userId);
-    const totalRendas = rendas.reduce((sum, r) => sum + r.valor, 0);
+    const totalRendas = parseFloat(rendas.reduce((sum, r) => sum + r.valor, 0).toFixed(2));
     
     // Buscar configurações
     const config = db.prepare('SELECT * FROM configuracoes WHERE usuario_id = ?').get(userId);
     
-    // Calcular distribuição
-    const necessidades = totalRendas * (config.percentual_necessidades / 100);
-    const desejos = totalRendas * (config.percentual_desejos / 100);
-    const poupanca = totalRendas * (config.percentual_poupanca / 100);
+    // Calcular distribuição (arredondar para 2 casas decimais)
+    const necessidades = parseFloat((totalRendas * (config.percentual_necessidades / 100)).toFixed(2));
+    const desejos = parseFloat((totalRendas * (config.percentual_desejos / 100)).toFixed(2));
+    const poupanca = parseFloat((totalRendas * (config.percentual_poupanca / 100)).toFixed(2));
     
     // Buscar despesas do mês atual
     const mesAtual = new Date().toISOString().slice(0, 7);
@@ -112,14 +112,59 @@ app.get('/dashboard', requireAuth, (req, res) => {
         GROUP BY categoria
     `).all(userId, mesAtual);
     
+    // Debug: console.log para verificar
+    console.log('📊 Dashboard Debug:');
+    console.log('Mês atual:', mesAtual);
+    console.log('Despesas do mês:', despesas);
+    
     const despesasObj = {
-        necessidades: despesas.find(d => d.categoria === 'necessidades')?.total || 0,
-        desejos: despesas.find(d => d.categoria === 'desejos')?.total || 0,
-        poupanca: despesas.find(d => d.categoria === 'poupanca')?.total || 0
+        necessidades: parseFloat((despesas.find(d => d.categoria === 'necessidades')?.total || 0).toFixed(2)),
+        desejos: parseFloat((despesas.find(d => d.categoria === 'desejos')?.total || 0).toFixed(2)),
+        poupanca: parseFloat((despesas.find(d => d.categoria === 'poupanca')?.total || 0).toFixed(2))
     };
     
-    // Buscar meta de reserva de emergência
-    const metaReserva = db.prepare('SELECT * FROM metas WHERE usuario_id = ? AND tipo = ? AND ativo = 1').get(userId, 'reserva_emergencia');
+    console.log('Despesas processadas:', despesasObj);
+    
+    // Calcular média de despesas mensais (últimos 6 meses ou todos os meses disponíveis)
+    const mediaDespesas = db.prepare(`
+        SELECT AVG(total_mes) as media
+        FROM (
+            SELECT strftime('%Y-%m', data) as mes, SUM(valor) as total_mes
+            FROM despesas 
+            WHERE usuario_id = ? AND categoria IN ('necessidades', 'desejos')
+            GROUP BY strftime('%Y-%m', data)
+            ORDER BY strftime('%Y-%m', data) DESC
+            LIMIT 6
+        )
+    `).get(userId);
+    
+    const despesaMediaMensal = parseFloat((mediaDespesas?.media || 0).toFixed(2));
+    
+    // Calcular reserva de emergência dinâmica (6 meses de despesas)
+    const reservaEmergenciaIdeal = parseFloat((despesaMediaMensal * 6).toFixed(2));
+    
+    // Buscar quanto já foi guardado em poupança (todas as despesas de poupança)
+    const totalPoupanca = db.prepare(`
+        SELECT SUM(valor) as total
+        FROM despesas 
+        WHERE usuario_id = ? AND categoria = 'poupanca'
+    `).get(userId);
+    
+    const valorAtualReserva = parseFloat((totalPoupanca?.total || 0).toFixed(2));
+    
+    // Criar objeto de reserva de emergência dinâmica
+    const reservaEmergencia = {
+        valor_meta: reservaEmergenciaIdeal,
+        valor_atual: valorAtualReserva,
+        descricao: 'Reserva de Emergência (6 meses de despesas)',
+        tipo: 'reserva_emergencia',
+        ativo: 1
+    };
+    
+    console.log('📈 Reserva de Emergência:');
+    console.log('Despesa média mensal:', despesaMediaMensal.toFixed(2));
+    console.log('Meta (6 meses):', reservaEmergenciaIdeal.toFixed(2));
+    console.log('Guardado:', valorAtualReserva.toFixed(2));
     
     res.render('dashboard', {
         userName: req.session.userName,
@@ -130,7 +175,8 @@ app.get('/dashboard', requireAuth, (req, res) => {
         poupanca,
         despesas: despesasObj,
         config,
-        metaReserva
+        metaReserva: reservaEmergencia,
+        despesaMediaMensal
     });
 });
 
@@ -245,15 +291,29 @@ app.get('/despesas', requireAuth, (req, res) => {
 
 app.post('/despesas/adicionar', requireAuth, (req, res) => {
     const { descricao, valor, categoria, subcategoria, data, recorrente } = req.body;
-    db.prepare('INSERT INTO despesas (usuario_id, descricao, valor, categoria, subcategoria, data, recorrente) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
-        req.session.userId,
-        descricao,
-        parseFloat(valor),
-        categoria,
-        subcategoria || null,
-        data,
-        recorrente ? 1 : 0
-    );
+    
+    console.log('💰 Adicionando despesa:');
+    console.log('  Usuário:', req.session.userId);
+    console.log('  Descrição:', descricao);
+    console.log('  Valor:', valor);
+    console.log('  Categoria:', categoria);
+    console.log('  Data:', data);
+    
+    try {
+        const result = db.prepare('INSERT INTO despesas (usuario_id, descricao, valor, categoria, subcategoria, data, recorrente) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
+            req.session.userId,
+            descricao,
+            parseFloat(valor),
+            categoria,
+            subcategoria || null,
+            data,
+            recorrente ? 1 : 0
+        );
+        console.log('✅ Despesa adicionada com ID:', result.lastInsertRowid);
+    } catch (error) {
+        console.error('❌ Erro ao adicionar despesa:', error);
+    }
+    
     res.redirect('/despesas');
 });
 

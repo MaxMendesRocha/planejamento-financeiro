@@ -21,7 +21,7 @@
                 <div class="stat-icon">💵</div>
                 <div class="stat-content">
                     <p class="stat-label">Renda Total</p>
-                    <h2 class="stat-value">R$ <%= totalRendas.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></h2>
+                    <h2 class="stat-value">R$ <%= totalRendas.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h2>
                 </div>
             </div>
             
@@ -29,8 +29,8 @@
                 <div class="stat-icon">🏠</div>
                 <div class="stat-content">
                     <p class="stat-label">Necessidades (<%= config.percentual_necessidades %>%)</p>
-                    <h2 class="stat-value">R$ <%= necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></h2>
-                    <p class="stat-small">Gasto: R$ <%= despesas.necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
+                    <h2 class="stat-value">R$ <%= necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h2>
+                    <p class="stat-small">Gasto: R$ <%= despesas.necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
                 </div>
             </div>
             
@@ -38,8 +38,8 @@
                 <div class="stat-icon">🎨</div>
                 <div class="stat-content">
                     <p class="stat-label">Desejos (<%= config.percentual_desejos %>%)</p>
-                    <h2 class="stat-value">R$ <%= desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></h2>
-                    <p class="stat-small">Gasto: R$ <%= despesas.desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
+                    <h2 class="stat-value">R$ <%= desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h2>
+                    <p class="stat-small">Gasto: R$ <%= despesas.desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
                 </div>
             </div>
             
@@ -47,32 +47,50 @@
                 <div class="stat-icon">💎</div>
                 <div class="stat-content">
                     <p class="stat-label">Poupança (<%= config.percentual_poupanca %>%)</p>
-                    <h2 class="stat-value">R$ <%= poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></h2>
-                    <p class="stat-small">Guardado: R$ <%= despesas.poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
+                    <h2 class="stat-value">R$ <%= poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h2>
+                    <p class="stat-small">Guardado: R$ <%= despesas.poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
                 </div>
             </div>
         </div>
         
         <!-- Progresso das Metas -->
-        <% if (metaReserva) { %>
         <div class="card">
             <div class="card-header">
-                <h2>🎯 Reserva de Emergência</h2>
+                <h2>🎯 Reserva de Emergência (Dinâmica)</h2>
+                <p style="color: var(--muted-foreground); font-size: 0.9rem; margin-top: 0.5rem;">
+                    Baseada em 6 meses de suas despesas médias mensais
+                </p>
             </div>
             <div class="meta-progress">
-                <div class="meta-info">
-                    <p><strong>Meta:</strong> R$ <%= metaReserva.valor_meta.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
-                    <p><strong>Guardado:</strong> R$ <%= metaReserva.valor_atual.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></p>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: <%= (metaReserva.valor_atual / metaReserva.valor_meta * 100).toFixed(1) %>%;">
-                        <%= (metaReserva.valor_atual / metaReserva.valor_meta * 100).toFixed(1) %>%
+                <% if (despesaMediaMensal > 0) { %>
+                    <div class="meta-info">
+                        <p><strong>Despesa Média Mensal:</strong> R$ <%= despesaMediaMensal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                        <p><strong>Meta (6 meses):</strong> R$ <%= (metaReserva.valor_meta || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                        <p><strong>Guardado em Poupança:</strong> R$ <%= (metaReserva.valor_atual || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                        <% const faltaGuardar = Math.max(0, (metaReserva.valor_meta || 0) - (metaReserva.valor_atual || 0)); %>
+                        <p><strong>Falta Guardar:</strong> R$ <%= faltaGuardar.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
                     </div>
-                </div>
-                <a href="/metas" class="btn btn-secondary">Atualizar Valor</a>
+                    <div class="progress-bar">
+                        <% const progressoMeta = metaReserva.valor_meta > 0 ? ((metaReserva.valor_atual || 0) / metaReserva.valor_meta * 100) : 0; %>
+                        <div class="progress-fill" style="width: <%= Math.min(progressoMeta, 100).toFixed(1) %>%;">
+                            <%= Math.min(progressoMeta, 100).toFixed(1) %>%
+                        </div>
+                    </div>
+                    <% if (progressoMeta >= 100) { %>
+                        <div class="alert alert-success" style="margin-top: 1rem;">
+                            ✅ Parabéns! Você atingiu sua meta de reserva de emergência!
+                        </div>
+                    <% } %>
+                <% } else { %>
+                    <div class="alert alert-info">
+                        ℹ️ Comece a cadastrar suas despesas mensais para calcular automaticamente sua reserva de emergência ideal.
+                    </div>
+                    <p style="margin-top: 1rem; color: var(--muted-foreground);">
+                        A reserva será calculada como <strong>6 meses</strong> de suas despesas médias mensais (necessidades + desejos).
+                    </p>
+                <% } %>
             </div>
         </div>
-        <% } %>
         
         <!-- Gráficos de Despesas -->
         <div class="grid-2">
@@ -84,11 +102,9 @@
                     <div class="bar-group">
                         <label>Necessidades</label>
                         <div class="bar-container">
-                            <div class="bar budget" style="width: 100%;">R$ <%= necessidades.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %></div>
-                        </div>
-                        <div class="bar-container">
-                            <div class="bar actual necessidades-bg" style="width: <%= (despesas.necessidades / necessidades * 100) %>%;">
-                                R$ <%= despesas.necessidades.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %>
+                            <div class="bar budget">R$ <%= necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
+                            <div class="bar actual necessidades-bg" style="width: <%= Math.min((despesas.necessidades / necessidades * 100), 100) %>%;">
+                                R$ <%= despesas.necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
                             </div>
                         </div>
                     </div>
@@ -96,11 +112,9 @@
                     <div class="bar-group">
                         <label>Desejos</label>
                         <div class="bar-container">
-                            <div class="bar budget" style="width: 100%;">R$ <%= desejos.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %></div>
-                        </div>
-                        <div class="bar-container">
-                            <div class="bar actual desejos-bg" style="width: <%= (despesas.desejos / desejos * 100) %>%;">
-                                R$ <%= despesas.desejos.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %>
+                            <div class="bar budget">R$ <%= desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
+                            <div class="bar actual desejos-bg" style="width: <%= Math.min((despesas.desejos / desejos * 100), 100) %>%;">
+                                R$ <%= despesas.desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
                             </div>
                         </div>
                     </div>
@@ -108,11 +122,9 @@
                     <div class="bar-group">
                         <label>Poupança</label>
                         <div class="bar-container">
-                            <div class="bar budget" style="width: 100%;">R$ <%= poupanca.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %></div>
-                        </div>
-                        <div class="bar-container">
-                            <div class="bar actual poupanca-bg" style="width: <%= (despesas.poupanca / poupanca * 100) %>%;">
-                                R$ <%= despesas.poupanca.toLocaleString('pt-BR', {maximumFractionDigits: 0}) %>
+                            <div class="bar budget">R$ <%= poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
+                            <div class="bar actual poupanca-bg" style="width: <%= Math.min((despesas.poupanca / poupanca * 100), 100) %>%;">
+                                R$ <%= despesas.poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
                             </div>
                         </div>
                     </div>

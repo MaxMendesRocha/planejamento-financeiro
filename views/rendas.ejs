@@ -90,6 +90,11 @@
             const previewCalculo = document.getElementById('previewCalculo');
             const dependentesInput = document.getElementById('dependentes');
             
+            // Mostrar campos de salário ao carregar a página se necessário
+            if (tipoSelect.value === 'salario') {
+                camposSalario.style.display = 'block';
+            }
+            
             // Mostrar/ocultar campos de salário
             tipoSelect.addEventListener('change', function() {
                 if (this.value === 'salario') {
