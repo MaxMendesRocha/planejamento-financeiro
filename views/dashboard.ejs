@@ -69,13 +69,15 @@
                         <p><strong>🎯 Meta (<%= config.meses_reserva_emergencia || 6 %> meses):</strong> R$ <%= (metaReserva.valor_meta || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
                         <p><strong>💰 Guardado em Poupança:</strong> R$ <%= (metaReserva.valor_atual || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
                         <% const faltaGuardar = Math.max(0, (metaReserva.valor_meta || 0) - (metaReserva.valor_atual || 0)); %>
-                        <p style="<%= faltaGuardar > 0 ? 'color: var(--warning);' : 'color: var(--success);' %> font-weight: bold; font-size: 1.1rem; margin-top: 0.5rem;">
-                            <% if (faltaGuardar > 0) { %>
-                                ⚠️ Falta Guardar: R$ <%= faltaGuardar.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
-                            <% } else { %>
-                                ✅ Meta Atingida!
-                            <% } %>
-                        </p>
+                        <% if (faltaGuardar > 0) { %>
+                            <p style="color: var(--warning); font-weight: bold; margin-top: 0.5rem;">
+                                <strong>⚠️ Falta Guardar:</strong> R$ <%= faltaGuardar.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                            </p>
+                        <% } else { %>
+                            <p style="color: var(--success); font-weight: bold; margin-top: 0.5rem;">
+                                <strong>✅ Meta Atingida!</strong>
+                            </p>
+                        <% } %>
                     </div>
                     <div class="progress-bar-container">
                         <div class="progress-bar">
