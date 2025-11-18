@@ -73,10 +73,21 @@ function initDatabase() {
             percentual_necessidades INTEGER DEFAULT 50,
             percentual_desejos INTEGER DEFAULT 30,
             percentual_poupanca INTEGER DEFAULT 20,
+            meses_reserva_emergencia INTEGER DEFAULT 6,
             atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
         )
     `);
+    
+    // Adicionar coluna meses_reserva_emergencia se não existir (migração)
+    try {
+        db.exec(`
+            ALTER TABLE configuracoes 
+            ADD COLUMN meses_reserva_emergencia INTEGER DEFAULT 6
+        `);
+    } catch (e) {
+        // Coluna já existe, ignorar erro
+    }
 
     console.log('✅ Banco de dados inicializado com sucesso!');
 }

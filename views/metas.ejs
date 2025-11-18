@@ -16,6 +16,25 @@
             <p class="subtitle">Acompanhe o progresso dos seus objetivos</p>
         </div>
         
+        <!-- Configuração de Meses para Reserva de Emergência -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i data-feather="alert-circle"></i>Configuração da Reserva de Emergência</h2>
+                <p>Defina quantos meses de despesas você quer ter como reserva</p>
+            </div>
+            <form method="POST" action="/metas/configurar-meses">
+                <div class="form-group">
+                    <label for="meses_reserva_emergencia">
+                        <i data-feather="calendar" class="feather-small"></i>Meses para Reserva de Emergência
+                    </label>
+                    <input type="number" id="meses_reserva_emergencia" name="meses_reserva_emergencia" 
+                           min="1" max="24" value="<%= config.meses_reserva_emergencia || 6 %>" required>
+                    <small>Recomendado: 3 a 12 meses de suas despesas mensais (necessidades + desejos)</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Atualizar Configuração</button>
+            </form>
+        </div>
+        
         <% metas.forEach(meta => { %>
             <% if (meta.ativo) { %>
                 <div class="card meta-card">
@@ -63,7 +82,7 @@
                         </div>
                     <% } else { %>
                         <div class="alert alert-info" style="margin-top: 1rem;">
-                            ℹ️ Esta meta é calculada automaticamente com base em 6 meses de suas despesas médias. O valor guardado é atualizado conforme você lança despesas na categoria "Poupança".
+                            ℹ️ Esta meta é calculada automaticamente com base em <strong><%= config.meses_reserva_emergencia || 6 %> meses</strong> de suas despesas médias (necessidades + desejos). O valor guardado é atualizado conforme você lança despesas na categoria "Poupança".
                         </div>
                     <% } %>
                 </div>

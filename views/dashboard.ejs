@@ -57,19 +57,25 @@
         <!-- Progresso das Metas -->
         <div class="card">
             <div class="card-header">
-                <h2><i data-feather="alert-circle"></i>Reserva de Emergência (Dinâmica)</h2>
+                <h2><i data-feather="alert-circle"></i>Reserva de Emergência</h2>
                 <p style="color: var(--muted-foreground); font-size: 0.9rem; margin-top: 0.5rem;">
-                    Baseada em 6 meses de suas despesas médias mensais
+                    Baseada em <%= config.meses_reserva_emergencia || 6 %> meses de suas despesas mensais (necessidades + desejos)
                 </p>
             </div>
             <div class="meta-progress">
                 <% if (despesaMediaMensal > 0) { %>
                     <div class="meta-info">
-                        <p><strong>Despesa Média Mensal:</strong> R$ <%= despesaMediaMensal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
-                        <p><strong>Meta (6 meses):</strong> R$ <%= (metaReserva.valor_meta || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
-                        <p><strong>Guardado em Poupança:</strong> R$ <%= (metaReserva.valor_atual || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                        <p><strong>💸 Despesa Média Mensal:</strong> R$ <%= despesaMediaMensal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                        <p><strong>🎯 Meta (<%= config.meses_reserva_emergencia || 6 %> meses):</strong> R$ <%= (metaReserva.valor_meta || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                        <p><strong>💰 Guardado em Poupança:</strong> R$ <%= (metaReserva.valor_atual || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
                         <% const faltaGuardar = Math.max(0, (metaReserva.valor_meta || 0) - (metaReserva.valor_atual || 0)); %>
-                        <p><strong>Falta Guardar:</strong> R$ <%= faltaGuardar.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                        <p style="<%= faltaGuardar > 0 ? 'color: var(--warning);' : 'color: var(--success);' %> font-weight: bold; font-size: 1.1rem; margin-top: 0.5rem;">
+                            <% if (faltaGuardar > 0) { %>
+                                ⚠️ Falta Guardar: R$ <%= faltaGuardar.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>
+                            <% } else { %>
+                                ✅ Meta Atingida!
+                            <% } %>
+                        </p>
                     </div>
                     <div class="progress-bar-container">
                         <div class="progress-bar">
@@ -80,7 +86,11 @@
                     </div>
                     <% if (progressoMeta >= 100) { %>
                         <div class="alert alert-success" style="margin-top: 1rem;">
-                            ✅ Parabéns! Você atingiu sua meta de reserva de emergência!
+                            🎉 Parabéns! Você atingiu sua meta de reserva de emergência de <%= config.meses_reserva_emergencia || 6 %> meses!
+                        </div>
+                    <% } else { %>
+                        <div class="alert alert-info" style="margin-top: 1rem;">
+                            💡 <strong>Dica:</strong> Cada vez que adicionar dinheiro na categoria "Poupança", você se aproxima mais da sua meta!
                         </div>
                     <% } %>
                 <% } else { %>
@@ -88,7 +98,8 @@
                         ℹ️ Comece a cadastrar suas despesas mensais para calcular automaticamente sua reserva de emergência ideal.
                     </div>
                     <p style="margin-top: 1rem; color: var(--muted-foreground);">
-                        A reserva será calculada como <strong>6 meses</strong> de suas despesas médias mensais (necessidades + desejos).
+                        A reserva será calculada como <strong><%= config.meses_reserva_emergencia || 6 %> meses</strong> de suas despesas médias mensais (necessidades + desejos).
+                        Você pode alterar a quantidade de meses em <a href="/configuracoes">Configurações</a>.
                     </p>
                 <% } %>
             </div>

@@ -154,8 +154,25 @@ app.get('/dashboard', requireAuth, (req, res) => {
     
     const despesaMediaMensal = parseFloat((mediaDespesas?.media || 0).toFixed(2));
     
-    // Calcular reserva de emergência dinâmica (6 meses de despesas)
-    const reservaEmergenciaIdeal = parseFloat((despesaMediaMensal * 6).toFixed(2));
+    // Pegar a configuração de meses para reserva de emergência
+    const mesesReserva = config.meses_reserva_emergencia || 6;
+    
+    // Calcular despesas mensais totais (necessidades + desejos) baseado nas despesas reais
+    const despesasMensaisReais = db.prepare(`
+        SELECT SUM(valor) as total
+        FROM despesas 
+        WHERE usuario_id = ? 
+        AND categoria IN ('necessidades', 'desejos')
+        AND strftime('%Y-%m', data) = strftime('%Y-%m', 'now')
+    `).get(userId);
+    
+    const despesaMensalTotal = parseFloat((despesasMensaisReais?.total || 0).toFixed(2));
+    
+    // Se não houver despesas no mês atual, usa a média dos últimos 6 meses
+    const baseDespesa = despesaMensalTotal > 0 ? despesaMensalTotal : despesaMediaMensal;
+    
+    // Calcular reserva de emergência dinâmica (X meses de despesas configurável)
+    const reservaEmergenciaIdeal = parseFloat((baseDespesa * mesesReserva).toFixed(2));
     
     // Buscar quanto já foi guardado em poupança (todas as despesas de poupança)
     const totalPoupanca = db.prepare(`
@@ -170,15 +187,17 @@ app.get('/dashboard', requireAuth, (req, res) => {
     const reservaEmergencia = {
         valor_meta: reservaEmergenciaIdeal,
         valor_atual: valorAtualReserva,
-        descricao: 'Reserva de Emergência (6 meses de despesas)',
+        descricao: `Reserva de Emergência (${mesesReserva} meses de despesas)`,
         tipo: 'reserva_emergencia',
-        ativo: 1
+        ativo: 1,
+        meses: mesesReserva
     };
     
     console.log('📈 Reserva de Emergência:');
-    console.log('Despesa média mensal:', despesaMediaMensal.toFixed(2));
-    console.log('Meta (6 meses):', reservaEmergenciaIdeal.toFixed(2));
-    console.log('Guardado:', valorAtualReserva.toFixed(2));
+    console.log('Despesas mensais (necessidades + desejos):', baseDespesa.toFixed(2));
+    console.log(`Meta (${mesesReserva} meses):`, reservaEmergenciaIdeal.toFixed(2));
+    console.log('Guardado na poupança:', valorAtualReserva.toFixed(2));
+    console.log('Falta guardar:', (reservaEmergenciaIdeal - valorAtualReserva).toFixed(2));
     
     // Criar ou atualizar a meta de Reserva de Emergência no banco de dados
     const metaReservaExistente = db.prepare(`
@@ -190,26 +209,28 @@ app.get('/dashboard', requireAuth, (req, res) => {
         // Atualizar meta existente
         db.prepare(`
             UPDATE metas 
-            SET valor_meta = ?, valor_atual = ?, descricao = ?
+            SET valor_meta = ?, valor_atual = ?, descricao = ?, prazo_meses = ?
             WHERE id = ? AND usuario_id = ?
         `).run(
             reservaEmergenciaIdeal,
             valorAtualReserva,
-            'Reserva de Emergência (6 meses)',
+            `Reserva de Emergência (${mesesReserva} meses)`,
+            mesesReserva,
             metaReservaExistente.id,
             userId
         );
     } else {
         // Criar nova meta
         db.prepare(`
-            INSERT INTO metas (usuario_id, descricao, valor_meta, valor_atual, tipo, ativo)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO metas (usuario_id, descricao, valor_meta, valor_atual, tipo, prazo_meses, ativo)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `).run(
             userId,
-            'Reserva de Emergência (6 meses)',
+            `Reserva de Emergência (${mesesReserva} meses)`,
             reservaEmergenciaIdeal,
             valorAtualReserva,
             'reserva_emergencia',
+            mesesReserva,
             1
         );
     }
@@ -374,6 +395,17 @@ app.post('/despesas/deletar/:id', requireAuth, (req, res) => {
 app.get('/metas', requireAuth, (req, res) => {
     const userId = req.session.userId;
     
+    // Buscar configurações
+    let config = db.prepare('SELECT * FROM configuracoes WHERE usuario_id = ?').get(userId);
+    
+    // Se não existir configuração, criar uma padrão
+    if (!config) {
+        db.prepare('INSERT INTO configuracoes (usuario_id) VALUES (?)').run(userId);
+        config = db.prepare('SELECT * FROM configuracoes WHERE usuario_id = ?').get(userId);
+    }
+    
+    const mesesReserva = config.meses_reserva_emergencia || 6;
+    
     // Calcular média de despesas mensais (últimos 6 meses)
     const mediaDespesas = db.prepare(`
         SELECT AVG(total_mes) as media
@@ -388,7 +420,7 @@ app.get('/metas', requireAuth, (req, res) => {
     `).get(userId);
     
     const despesaMediaMensal = parseFloat((mediaDespesas?.media || 0).toFixed(2));
-    const reservaEmergenciaIdeal = parseFloat((despesaMediaMensal * 6).toFixed(2));
+    const reservaEmergenciaIdeal = parseFloat((despesaMediaMensal * mesesReserva).toFixed(2));
     
     // Buscar quanto já foi guardado em poupança
     const totalPoupanca = db.prepare(`
@@ -409,32 +441,43 @@ app.get('/metas', requireAuth, (req, res) => {
         // Atualizar meta existente
         db.prepare(`
             UPDATE metas 
-            SET valor_meta = ?, valor_atual = ?, descricao = ?
+            SET valor_meta = ?, valor_atual = ?, descricao = ?, prazo_meses = ?
             WHERE id = ? AND usuario_id = ?
         `).run(
             reservaEmergenciaIdeal,
             valorAtualReserva,
-            'Reserva de Emergência (6 meses)',
+            `Reserva de Emergência (${mesesReserva} meses)`,
+            mesesReserva,
             metaReservaExistente.id,
             userId
         );
     } else if (despesaMediaMensal > 0) {
         // Criar nova meta apenas se houver despesas registradas
         db.prepare(`
-            INSERT INTO metas (usuario_id, descricao, valor_meta, valor_atual, tipo, ativo)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO metas (usuario_id, descricao, valor_meta, valor_atual, tipo, prazo_meses, ativo)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `).run(
             userId,
-            'Reserva de Emergência (6 meses)',
+            `Reserva de Emergência (${mesesReserva} meses)`,
             reservaEmergenciaIdeal,
             valorAtualReserva,
             'reserva_emergencia',
+            mesesReserva,
             1
         );
     }
     
     const metas = db.prepare('SELECT * FROM metas WHERE usuario_id = ? ORDER BY criado_em DESC').all(userId);
-    res.render('metas', { userName: req.session.userName, metas });
+    res.render('metas', { userName: req.session.userName, metas, config });
+});
+
+app.post('/metas/configurar-meses', requireAuth, (req, res) => {
+    const { meses_reserva_emergencia } = req.body;
+    db.prepare('UPDATE configuracoes SET meses_reserva_emergencia = ?, atualizado_em = CURRENT_TIMESTAMP WHERE usuario_id = ?').run(
+        parseInt(meses_reserva_emergencia) || 6,
+        req.session.userId
+    );
+    res.redirect('/metas');
 });
 
 app.post('/metas/atualizar-valor/:id', requireAuth, (req, res) => {
