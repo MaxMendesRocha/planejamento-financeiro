@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metas - Planejamento Financeiro</title>
     <link rel="stylesheet" href="/css/style.css?v=<%= Date.now() %>">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
 <body>
     <%- include('partials/navbar', { userName, active: 'metas' }) %>
     
     <div class="container">
         <div class="page-header">
-            <h1>🎯 Minhas Metas Financeiras</h1>
+            <h1><i data-feather="target"></i>Minhas Metas Financeiras</h1>
             <p class="subtitle">Acompanhe o progresso dos seus objetivos</p>
         </div>
         
@@ -24,7 +25,7 @@
                             <span class="badge badge-<%= meta.tipo %>"><%= meta.tipo.replace('_', ' ') %></span>
                         </div>
                         <% if (meta.prazo_meses) { %>
-                            <p class="meta-prazo">⏱️ Prazo: <%= meta.prazo_meses %> meses</p>
+                            <p class="meta-prazo"><i data-feather="clock" class="feather-small"></i>Prazo: <%= meta.prazo_meses %> meses</p>
                         <% } %>
                     </div>
                     
@@ -99,6 +100,9 @@
                 }
             });
         });
+    </script>
+    <script>
+        feather.replace();
     </script>
 </body>
 </html>

@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Despesas - Planejamento Financeiro</title>
     <link rel="stylesheet" href="/css/style.css?v=<%= Date.now() %>">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
 <body>
     <%- include('partials/navbar', { userName, active: 'despesas' }) %>
     
     <div class="container">
         <div class="page-header">
-            <h1>💳 Gerenciar Despesas</h1>
+            <h1><i data-feather="credit-card"></i>Gerenciar Despesas</h1>
             <p class="subtitle">Controle seus gastos mensais</p>
         </div>
         
         <div class="card">
             <div class="card-header">
-                <h2>➕ Adicionar Nova Despesa</h2>
+                <h2><i data-feather="plus-circle"></i>Adicionar Nova Despesa</h2>
             </div>
             <form method="POST" action="/despesas/adicionar">
                 <div class="form-row">
@@ -28,9 +29,9 @@
                     <div class="form-group">
                         <label for="categoria">Categoria</label>
                         <select id="categoria" name="categoria" required>
-                            <option value="necessidades">🛡️ Necessidades</option>
-                            <option value="desejos">✨ Desejos</option>
-                            <option value="poupanca">🎯 Poupança</option>
+                            <option value="necessidades"><i data-feather="shield"></i> Necessidades</option>
+                            <option value="desejos"><i data-feather="gift"></i> Desejos</option>
+                            <option value="poupanca"><i data-feather="target"></i> Poupança</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -63,7 +64,7 @@
         
         <div class="card">
             <div class="card-header">
-                <h2>📋 Despesas de <%= new Date(mesAtual + '-01').toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'}) %></h2>
+                <h2><i data-feather="list"></i>Despesas de <%= new Date(mesAtual + '-01').toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'}) %></h2>
             </div>
             
             <% if (despesas.length === 0) { %>
@@ -114,9 +115,9 @@
                         <tr class="total-row">
                             <td colspan="4"><strong>Total por Categoria</strong></td>
                             <td colspan="2">
-                                <div>🛡️ Necessidades: <strong>R$ <%= totalNecessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
-                                <div>✨ Desejos: <strong>R$ <%= totalDesejos.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
-                                <div>🎯 Poupança: <strong>R$ <%= totalPoupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
+                                <div><i data-feather="shield" class="feather-small"></i>Necessidades: <strong>R$ <%= totalNecessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
+                                <div><i data-feather="gift" class="feather-small"></i>Desejos: <strong>R$ <%= totalDesejos.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
+                                <div><i data-feather="target" class="feather-small"></i>Poupança: <strong>R$ <%= totalPoupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
                             </td>
                         </tr>
                         <tr class="total-row">
@@ -128,5 +129,8 @@
             <% } %>
         </div>
     </div>
+    <script>
+        feather.replace();
+    </script>
 </body>
 </html>

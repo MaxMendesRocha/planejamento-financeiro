@@ -138,6 +138,8 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
+    flex-wrap: nowrap;
+    gap: 1rem;
 }
 
 .nav-brand {
@@ -145,6 +147,10 @@ body {
     font-weight: 700;
     color: var(--primary);
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
 }
 
 .nav-menu {
@@ -160,6 +166,9 @@ body {
     transition: all 0.2s;
     padding: 0.5rem 1rem;
     border-radius: var(--radius-md);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .nav-menu a:hover,
@@ -174,6 +183,12 @@ body {
     gap: 1rem;
 }
 
+.nav-user span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .btn-logout {
     background: var(--destructive);
     color: var(--destructive-foreground);
@@ -184,6 +199,9 @@ body {
     transition: all 0.2s;
     border: none;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .btn-logout:hover {
@@ -1117,4 +1135,67 @@ input[type="radio"]:not(:disabled) {
     .page-header h1 {
         font-size: 2rem;
     }
+}
+
+/* Feather Icons Styling */
+[data-feather] {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    vertical-align: middle;
+    margin-right: 0px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.feather-small {
+    width: 16px;
+    height: 16px;
+}
+
+.nav-brand [data-feather] {
+    width: 24px;
+    height: 24px;
+    margin-right: 0px;
+}
+
+.nav-menu [data-feather] {
+    width: 18px;
+    height: 18px;
+    margin-right: 0px;
+}
+
+.nav-user [data-feather] {
+    width: 18px;
+    height: 18px;
+    margin-right: 0px;
+}
+
+.card-icon [data-feather] {
+    width: 32px;
+    height: 32px;
+}
+
+.stat-icon [data-feather] {
+    width: 48px;
+    height: 48px;
+}
+
+.action-icon [data-feather] {
+    width: 28px;
+    height: 28px;
+}
+
+.page-header h1 [data-feather] {
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+}
+
+.card-header h2 [data-feather] {
+    margin-right: 8px;
 }

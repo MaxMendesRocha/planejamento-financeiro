@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - Planejamento Financeiro</title>
     <link rel="stylesheet" href="/css/style.css?v=<%= Date.now() %>">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
 <body class="auth-page">
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>� Criar Conta</h1>
+                <h1><i data-feather="user-plus"></i>Criar Conta</h1>
                 <p>Comece seu planejamento financeiro</p>
             </div>
             
@@ -42,5 +43,8 @@
             </div>
         </div>
     </div>
+    <script>
+        feather.replace();
+    </script>
 </body>
 </html>

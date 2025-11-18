@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuração Inicial - Planejamento Financeiro</title>
     <link rel="stylesheet" href="/css/style.css?v=<%= Date.now() %>">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
 <body>
     <%- include('partials/navbar', { userName, active: 'configuracao' }) %>
     
     <div class="container">
         <div class="welcome-section">
-            <h1>🎉 Bem-vindo, <%= userName %>!</h1>
+            <h1><i data-feather="check-circle"></i>Bem-vindo, <%= userName %>!</h1>
             <p class="subtitle">Vamos configurar suas fontes de renda para começar</p>
         </div>
         
         <div class="card">
             <div class="card-header">
-                <h2>� Configure suas Rendas</h2>
+                <h2><i data-feather="dollar-sign"></i>Configure suas Rendas</h2>
                 <p>Adicione todas as suas fontes de renda mensal</p>
             </div>
             
@@ -85,6 +86,9 @@
             container.insertAdjacentHTML('beforeend', novaRenda);
             rendaCount++;
         }
+    </script>
+    <script>
+        feather.replace();
     </script>
 </body>
 </html>

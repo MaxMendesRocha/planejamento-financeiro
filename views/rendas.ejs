@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rendas - Planejamento Financeiro</title>
     <link rel="stylesheet" href="/css/style.css?v=<%= Date.now() %>">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
 <body>
     <%- include('partials/navbar', { userName, active: 'rendas' }) %>
     
     <div class="container">
         <div class="page-header">
-            <h1>💼 Gerenciar Rendas</h1>
+            <h1><i data-feather="dollar-sign"></i>Gerenciar Rendas</h1>
             <p class="subtitle">Configure suas fontes de renda mensal</p>
         </div>
         
         <div class="card">
             <div class="card-header">
-                <h2>➕ Adicionar Nova Renda</h2>
+                <h2><i data-feather="plus-circle"></i>Adicionar Nova Renda</h2>
             </div>
             <form method="POST" action="/rendas/adicionar" id="formRenda">
                 <div class="form-row">
@@ -65,7 +66,7 @@
                 
                 <!-- Área de preview do cálculo -->
                 <div id="previewCalculo" style="display: none; margin-top: 15px; padding: 15px; background: #1e3a5f; border-radius: 8px; border-left: 4px solid #10b981;">
-                    <h4 style="margin-top: 0; color: #10b981;">📊 Detalhamento do Salário</h4>
+                    <h4 style="margin-top: 0; color: #10b981;"><i data-feather="bar-chart-2" class="feather-small"></i>Detalhamento do Salário</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #ffffff;">
                         <div><strong>Salário Bruto:</strong> <span id="prevBruto">R$ 0,00</span></div>
                         <div><strong>INSS:</strong> <span id="prevINSS">R$ 0,00</span></div>
@@ -213,7 +214,7 @@
         
         <div class="card">
             <div class="card-header">
-                <h2>📋 Minhas Rendas</h2>
+                <h2><i data-feather="list"></i>Minhas Rendas</h2>
             </div>
             
             <% if (rendas.length === 0) { %>
@@ -463,6 +464,9 @@
             
             editPreviewCalculo.style.display = 'block';
         }
+    </script>
+    <script>
+        feather.replace();
     </script>
 </body>
 </html>

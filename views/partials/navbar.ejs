@@ -1,16 +1,16 @@
 <nav class="navbar">
     <div class="nav-container">
-        <a href="/dashboard" class="nav-brand">� Planejamento Financeiro</a>
+        <a href="/dashboard" class="nav-brand"><i data-feather="clipboard"></i> Planejamento Financeiro</a>
         <ul class="nav-menu">
-            <li><a href="/dashboard" class="<%= active === 'dashboard' ? 'active' : '' %>">Dashboard</a></li>
-            <li><a href="/rendas" class="<%= active === 'rendas' ? 'active' : '' %>">Rendas</a></li>
-            <li><a href="/despesas" class="<%= active === 'despesas' ? 'active' : '' %>">Despesas</a></li>
-            <li><a href="/metas" class="<%= active === 'metas' ? 'active' : '' %>">Metas</a></li>
-            <li><a href="/configuracoes" class="<%= active === 'configuracoes' ? 'active' : '' %>">Configurações</a></li>
+            <li><a href="/dashboard" class="<%= active === 'dashboard' ? 'active' : '' %>"><i data-feather="trending-up"></i> Dashboard</a></li>
+            <li><a href="/rendas" class="<%= active === 'rendas' ? 'active' : '' %>"><i data-feather="dollar-sign"></i> Rendas</a></li>
+            <li><a href="/despesas" class="<%= active === 'despesas' ? 'active' : '' %>"><i data-feather="credit-card"></i> Despesas</a></li>
+            <li><a href="/metas" class="<%= active === 'metas' ? 'active' : '' %>"><i data-feather="target"></i> Metas</a></li>
+            <li><a href="/configuracoes" class="<%= active === 'configuracoes' ? 'active' : '' %>"><i data-feather="settings"></i> Configurações</a></li>
         </ul>
         <div class="nav-user">
-            <span>Olá, <%= userName %>!</span>
-            <a href="/logout" class="btn-logout">Sair</a>
+            <span><i data-feather="user"></i> Olá, <%= userName %>!</span>
+            <a href="/logout" class="btn-logout"><i data-feather="log-out"></i> Sair</a>
         </div>
     </div>
 </nav>
