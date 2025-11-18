@@ -44,20 +44,27 @@
                         </div>
                     </div>
                     
-                    <div class="progress-bar">
-                        <% const progressoMeta = (meta.valor_meta || 0) > 0 ? Math.min(((meta.valor_atual || 0) / meta.valor_meta * 100), 100) : 0; %>
-                        <div class="progress-fill" style="width: <%= progressoMeta.toFixed(1) %>%;">
-                            <%= progressoMeta.toFixed(1) %>%
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <% const progressoMeta = (meta.valor_meta || 0) > 0 ? Math.min(((meta.valor_atual || 0) / meta.valor_meta * 100), 100) : 0; %>
+                            <div class="progress-fill" style="width: <%= progressoMeta.toFixed(1) %>%;"></div>
                         </div>
+                        <div class="progress-percentage"><%= progressoMeta.toFixed(1) %>%</div>
                     </div>
                     
-                    <div class="meta-actions">
-                        <form class="update-form" data-meta-id="<%= meta.id %>">
-                            <label>Atualizar valor guardado:</label>
-                            <input type="number" step="0.01" value="<%= meta.valor_atual || 0 %>" class="valor-input" placeholder="0,00">
-                            <button type="submit" class="btn btn-primary">Atualizar</button>
-                        </form>
-                    </div>
+                    <% if (meta.tipo !== 'reserva_emergencia') { %>
+                        <div class="meta-actions">
+                            <form class="update-form" data-meta-id="<%= meta.id %>">
+                                <label>Atualizar valor guardado:</label>
+                                <input type="number" step="0.01" value="<%= meta.valor_atual || 0 %>" class="valor-input" placeholder="0,00">
+                                <button type="submit" class="btn btn-primary">Atualizar</button>
+                            </form>
+                        </div>
+                    <% } else { %>
+                        <div class="alert alert-info" style="margin-top: 1rem;">
+                            ℹ️ Esta meta é calculada automaticamente com base em 6 meses de suas despesas médias. O valor guardado é atualizado conforme você lança despesas na categoria "Poupança".
+                        </div>
+                    <% } %>
                 </div>
             <% } %>
         <% }); %>

@@ -11,8 +11,8 @@
     
     <div class="container">
         <div class="page-header">
-            <h1>📊 Gerenciar Despesas</h1>
-            <p class="subtitle">Registre e acompanhe seus gastos</p>
+            <h1>💳 Gerenciar Despesas</h1>
+            <p class="subtitle">Controle seus gastos mensais</p>
         </div>
         
         <div class="card">
@@ -28,9 +28,9 @@
                     <div class="form-group">
                         <label for="categoria">Categoria</label>
                         <select id="categoria" name="categoria" required>
-                            <option value="necessidades">🏠 Necessidades</option>
-                            <option value="desejos">🎨 Desejos</option>
-                            <option value="poupanca">💎 Poupança</option>
+                            <option value="necessidades">🛡️ Necessidades</option>
+                            <option value="desejos">✨ Desejos</option>
+                            <option value="poupanca">🎯 Poupança</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -114,9 +114,9 @@
                         <tr class="total-row">
                             <td colspan="4"><strong>Total por Categoria</strong></td>
                             <td colspan="2">
-                                <div>🏠 Necessidades: <strong>R$ <%= totalNecessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
-                                <div>🎨 Desejos: <strong>R$ <%= totalDesejos.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
-                                <div>💎 Poupança: <strong>R$ <%= totalPoupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
+                                <div>🛡️ Necessidades: <strong>R$ <%= totalNecessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
+                                <div>✨ Desejos: <strong>R$ <%= totalDesejos.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
+                                <div>🎯 Poupança: <strong>R$ <%= totalPoupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></strong></div>
                             </td>
                         </tr>
                         <tr class="total-row">

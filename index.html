@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💰 Planejamento Financeiro Familiar</title>
+    <title>� Planejamento Financeiro Familiar</title>
     <style>
         * {
             margin: 0;
@@ -361,6 +361,21 @@
             border-left: 4px solid var(--warning);
         }
 
+        .feather-small {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+
+        .alert-success span:first-child {
+            color: var(--success);
+        }
+
+        .alert-warning span:first-child {
+            color: var(--warning);
+        }
+
         footer {
             text-align: center;
             padding: 20px;
@@ -372,7 +387,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>💰 Planejamento Financeiro Familiar</h1>
+            <h1><i data-feather="clipboard" style="vertical-align: middle; margin-right: 10px;"></i>Planejamento Financeiro Familiar</h1>
             <p class="subtitle">Método 50/30/20 - Controle Inteligente do Seu Dinheiro</p>
         </header>
 
@@ -380,7 +395,7 @@
         <div class="dashboard">
             <div class="card income-card">
                 <div class="card-header">
-                    <span class="card-icon">💵</span>
+                    <span class="card-icon"><i data-feather="dollar-sign"></i></span>
                     <h2 class="card-title">Renda Total</h2>
                 </div>
                 <p class="value-label">Mensal</p>
@@ -397,26 +412,26 @@
 
             <div class="card expense-card">
                 <div class="card-header">
-                    <span class="card-icon">📊</span>
+                    <span class="card-icon"><i data-feather="pie-chart"></i></span>
                     <h2 class="card-title">Distribuição 50/30/20</h2>
                 </div>
                 <div class="category-item">
-                    <span class="category-name">🏠 Necessidades (50%)</span>
+                    <span class="category-name"><i data-feather="shield" class="feather-small"></i> Necessidades (50%)</span>
                     <span class="category-value" id="needs">R$ 6.938,20</span>
                 </div>
                 <div class="category-item">
-                    <span class="category-name">🎨 Desejos (30%)</span>
+                    <span class="category-name"><i data-feather="gift" class="feather-small"></i> Desejos (30%)</span>
                     <span class="category-value" id="wants">R$ 4.162,92</span>
                 </div>
                 <div class="category-item">
-                    <span class="category-name">💎 Poupança (20%)</span>
+                    <span class="category-name"><i data-feather="target" class="feather-small"></i> Poupança (20%)</span>
                     <span class="category-value" id="savings">R$ 2.775,28</span>
                 </div>
             </div>
 
             <div class="card savings-card">
                 <div class="card-header">
-                    <span class="card-icon">🎯</span>
+                    <span class="card-icon"><i data-feather="target"></i></span>
                     <h2 class="card-title">Meta de Poupança</h2>
                 </div>
                 <p class="value-label">Por Mês</p>
@@ -429,7 +444,7 @@
         <!-- Progresso da Reserva de Emergência -->
         <div class="progress-section">
             <div class="progress-header">
-                <h2>🚀 Progresso da Reserva de Emergência</h2>
+                <h2><i data-feather="trending-up" style="vertical-align: middle; margin-right: 10px;"></i>Progresso da Reserva de Emergência</h2>
                 <span class="value-label">Meta: R$ 41.629,20</span>
             </div>
             <div class="input-group">
@@ -460,7 +475,7 @@
             <!-- Necessidades -->
             <div class="budget-card">
                 <div class="card-header">
-                    <span class="card-icon">🏠</span>
+                    <span class="card-icon"><i data-feather="shield"></i></span>
                     <h2 class="card-title">Necessidades (50%)</h2>
                 </div>
                 <div class="value-display" style="font-size: 1.8em;">R$ 6.938,20</div>
@@ -503,7 +518,7 @@
             <!-- Desejos -->
             <div class="budget-card">
                 <div class="card-header">
-                    <span class="card-icon">🎨</span>
+                    <span class="card-icon"><i data-feather="gift"></i></span>
                     <h2 class="card-title">Desejos (30%)</h2>
                 </div>
                 <div class="value-display" style="font-size: 1.8em;">R$ 4.162,92</div>
@@ -546,12 +561,12 @@
             <!-- Investimentos -->
             <div class="budget-card">
                 <div class="card-header">
-                    <span class="card-icon">💎</span>
+                    <span class="card-icon"><i data-feather="archive"></i></span>
                     <h2 class="card-title">Poupança & Investimentos</h2>
                 </div>
                 <div class="value-display" style="font-size: 1.8em;">R$ 2.775,28</div>
                 <div class="tip-item">
-                    <strong>🎯 Prioridade Atual:</strong> Reserva de Emergência
+                    <strong><i data-feather="target" class="feather-small"></i> Prioridade Atual:</strong> Reserva de Emergência
                 </div>
                 <div class="category-item">
                     <span class="category-name">Tesouro Selic</span>
@@ -562,7 +577,7 @@
                     <span class="category-value">Recomendado</span>
                 </div>
                 <div class="alert alert-success" style="margin-top: 15px;">
-                    <span>✅</span>
+                    <span><i data-feather="check-circle"></i></span>
                     <span>Em 15 meses você terá 6 meses de despesas guardados!</span>
                 </div>
             </div>
@@ -570,31 +585,34 @@
 
         <!-- Dicas e Alertas -->
         <div class="tips-section">
-            <h2 style="margin-bottom: 20px;">💡 Dicas para Melhorar suas Finanças</h2>
+            <h2 style="margin-bottom: 20px;"><i data-feather="zap" style="vertical-align: middle; margin-right: 10px;"></i>Dicas para Melhorar suas Finanças</h2>
             <div class="tip-item">
-                <strong>💰 VR de R$ 2.500,00:</strong> Use exclusivamente para alimentação. Se sobrar, guarde!
+                <strong><i data-feather="coffee" class="feather-small"></i> VR de R$ 2.500,00:</strong> Use exclusivamente para alimentação. Se sobrar, guarde!
             </div>
             <div class="tip-item">
-                <strong>👶 Auxílio Creche R$ 1.030,00:</strong> Se não usar todo, direcione para poupança.
+                <strong><i data-feather="smile" class="feather-small"></i> Auxílio Creche R$ 1.030,00:</strong> Se não usar todo, direcione para poupança.
             </div>
             <div class="tip-item">
-                <strong>🏠 Sem aluguel:</strong> Grande vantagem! Aproveite para acelerar a poupança.
+                <strong><i data-feather="home" class="feather-small"></i> Sem aluguel:</strong> Grande vantagem! Aproveite para acelerar a poupança.
             </div>
             <div class="tip-item">
-                <strong>📱 Apps úteis:</strong> GuiaBolso, Mobills (controle), Méliuz (cashback), Nu Invest (investimentos)
+                <strong><i data-feather="smartphone" class="feather-small"></i> Apps úteis:</strong> GuiaBolso, Mobills (controle), Méliuz (cashback), Nu Invest (investimentos)
             </div>
             <div class="tip-item">
-                <strong>🔄 Revisão mensal:</strong> Todo dia 1º do mês, revise seus gastos e ajuste o planejamento.
+                <strong><i data-feather="calendar" class="feather-small"></i> Revisão mensal:</strong> Todo dia 1º do mês, revise seus gastos e ajuste o planejamento.
             </div>
         </div>
 
         <footer>
-            <p>📊 Criado em Novembro de 2025 | Revisão recomendada: Trimestral</p>
-            <p style="margin-top: 10px; opacity: 0.8;">💪 Com disciplina, seu futuro financeiro será brilhante!</p>
+            <p><i data-feather="bar-chart-2" class="feather-small"></i> Criado em Novembro de 2025 | Revisão recomendada: Trimestral</p>
+            <p style="margin-top: 10px; opacity: 0.8;"><i data-feather="award" class="feather-small"></i> Com disciplina, seu futuro financeiro será brilhante!</p>
         </footer>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script>
+        feather.replace();
+
         // Atualizar progresso da reserva
         const currentSavingsInput = document.getElementById('currentSavings');
         const progressFill = document.getElementById('progressFill');

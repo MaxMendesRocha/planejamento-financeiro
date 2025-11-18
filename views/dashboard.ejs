@@ -11,14 +11,14 @@
     
     <div class="container">
         <div class="page-header">
-            <h1>📊 Dashboard Financeiro</h1>
+            <h1>📈 Dashboard Financeiro</h1>
             <p class="subtitle">Visão geral do seu planejamento</p>
         </div>
         
         <!-- Cards de Resumo -->
         <div class="dashboard-cards">
             <div class="stat-card">
-                <div class="stat-icon">💵</div>
+                <div class="stat-icon">🏦</div>
                 <div class="stat-content">
                     <p class="stat-label">Renda Total</p>
                     <h2 class="stat-value">R$ <%= totalRendas.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h2>
@@ -26,7 +26,7 @@
             </div>
             
             <div class="stat-card necessidades">
-                <div class="stat-icon">🏠</div>
+                <div class="stat-icon">🛡️</div>
                 <div class="stat-content">
                     <p class="stat-label">Necessidades (<%= config.percentual_necessidades %>%)</p>
                     <h2 class="stat-value">R$ <%= necessidades.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h2>
@@ -35,7 +35,7 @@
             </div>
             
             <div class="stat-card desejos">
-                <div class="stat-icon">🎨</div>
+                <div class="stat-icon">✨</div>
                 <div class="stat-content">
                     <p class="stat-label">Desejos (<%= config.percentual_desejos %>%)</p>
                     <h2 class="stat-value">R$ <%= desejos.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h2>
@@ -44,7 +44,7 @@
             </div>
             
             <div class="stat-card poupanca">
-                <div class="stat-icon">💎</div>
+                <div class="stat-icon">🎯</div>
                 <div class="stat-content">
                     <p class="stat-label">Poupança (<%= config.percentual_poupanca %>%)</p>
                     <h2 class="stat-value">R$ <%= poupanca.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h2>
@@ -56,7 +56,7 @@
         <!-- Progresso das Metas -->
         <div class="card">
             <div class="card-header">
-                <h2>🎯 Reserva de Emergência (Dinâmica)</h2>
+                <h2>� Reserva de Emergência (Dinâmica)</h2>
                 <p style="color: var(--muted-foreground); font-size: 0.9rem; margin-top: 0.5rem;">
                     Baseada em 6 meses de suas despesas médias mensais
                 </p>
@@ -97,7 +97,7 @@
         <div class="grid-2">
             <div class="card">
                 <div class="card-header">
-                    <h2>📈 Orçamento vs Realizado</h2>
+                    <h2>📊 Orçamento vs Realizado</h2>
                 </div>
                 <div class="comparison-bars-vertical">
                     <% 
@@ -168,15 +168,15 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h2>💡 Ações Rápidas</h2>
+                    <h2>⚡ Ações Rápidas</h2>
                 </div>
                 <div class="quick-actions">
                     <a href="/despesas" class="action-button">
-                        <span class="action-icon">➕</span>
+                        <span class="action-icon">💳</span>
                         <span>Adicionar Despesa</span>
                     </a>
                     <a href="/rendas" class="action-button">
-                        <span class="action-icon">💰</span>
+                        <span class="action-icon">🏦</span>
                         <span>Gerenciar Rendas</span>
                     </a>
                     <a href="/metas" class="action-button">

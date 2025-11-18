@@ -180,6 +180,40 @@ app.get('/dashboard', requireAuth, (req, res) => {
     console.log('Meta (6 meses):', reservaEmergenciaIdeal.toFixed(2));
     console.log('Guardado:', valorAtualReserva.toFixed(2));
     
+    // Criar ou atualizar a meta de Reserva de Emergência no banco de dados
+    const metaReservaExistente = db.prepare(`
+        SELECT * FROM metas 
+        WHERE usuario_id = ? AND tipo = 'reserva_emergencia'
+    `).get(userId);
+    
+    if (metaReservaExistente) {
+        // Atualizar meta existente
+        db.prepare(`
+            UPDATE metas 
+            SET valor_meta = ?, valor_atual = ?, descricao = ?
+            WHERE id = ? AND usuario_id = ?
+        `).run(
+            reservaEmergenciaIdeal,
+            valorAtualReserva,
+            'Reserva de Emergência (6 meses)',
+            metaReservaExistente.id,
+            userId
+        );
+    } else {
+        // Criar nova meta
+        db.prepare(`
+            INSERT INTO metas (usuario_id, descricao, valor_meta, valor_atual, tipo, ativo)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `).run(
+            userId,
+            'Reserva de Emergência (6 meses)',
+            reservaEmergenciaIdeal,
+            valorAtualReserva,
+            'reserva_emergencia',
+            1
+        );
+    }
+    
     res.render('dashboard', {
         userName: req.session.userName,
         rendas,
@@ -338,7 +372,68 @@ app.post('/despesas/deletar/:id', requireAuth, (req, res) => {
 
 // Metas
 app.get('/metas', requireAuth, (req, res) => {
-    const metas = db.prepare('SELECT * FROM metas WHERE usuario_id = ? ORDER BY criado_em DESC').all(req.session.userId);
+    const userId = req.session.userId;
+    
+    // Calcular média de despesas mensais (últimos 6 meses)
+    const mediaDespesas = db.prepare(`
+        SELECT AVG(total_mes) as media
+        FROM (
+            SELECT strftime('%Y-%m', data) as mes, SUM(valor) as total_mes
+            FROM despesas 
+            WHERE usuario_id = ? AND categoria IN ('necessidades', 'desejos')
+            GROUP BY strftime('%Y-%m', data)
+            ORDER BY strftime('%Y-%m', data) DESC
+            LIMIT 6
+        )
+    `).get(userId);
+    
+    const despesaMediaMensal = parseFloat((mediaDespesas?.media || 0).toFixed(2));
+    const reservaEmergenciaIdeal = parseFloat((despesaMediaMensal * 6).toFixed(2));
+    
+    // Buscar quanto já foi guardado em poupança
+    const totalPoupanca = db.prepare(`
+        SELECT SUM(valor) as total
+        FROM despesas 
+        WHERE usuario_id = ? AND categoria = 'poupanca'
+    `).get(userId);
+    
+    const valorAtualReserva = parseFloat((totalPoupanca?.total || 0).toFixed(2));
+    
+    // Atualizar ou criar meta de Reserva de Emergência
+    const metaReservaExistente = db.prepare(`
+        SELECT * FROM metas 
+        WHERE usuario_id = ? AND tipo = 'reserva_emergencia'
+    `).get(userId);
+    
+    if (metaReservaExistente) {
+        // Atualizar meta existente
+        db.prepare(`
+            UPDATE metas 
+            SET valor_meta = ?, valor_atual = ?, descricao = ?
+            WHERE id = ? AND usuario_id = ?
+        `).run(
+            reservaEmergenciaIdeal,
+            valorAtualReserva,
+            'Reserva de Emergência (6 meses)',
+            metaReservaExistente.id,
+            userId
+        );
+    } else if (despesaMediaMensal > 0) {
+        // Criar nova meta apenas se houver despesas registradas
+        db.prepare(`
+            INSERT INTO metas (usuario_id, descricao, valor_meta, valor_atual, tipo, ativo)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `).run(
+            userId,
+            'Reserva de Emergência (6 meses)',
+            reservaEmergenciaIdeal,
+            valorAtualReserva,
+            'reserva_emergencia',
+            1
+        );
+    }
+    
+    const metas = db.prepare('SELECT * FROM metas WHERE usuario_id = ? ORDER BY criado_em DESC').all(userId);
     res.render('metas', { userName: req.session.userName, metas });
 });
 
